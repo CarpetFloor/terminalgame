@@ -9,6 +9,7 @@ body {
     color: #00FF99;
     font-size: 20px;
     user-select: none;
+    text-transform: uppercase;
 }
 #mainGameContainer {
     display: flex;
@@ -21,26 +22,16 @@ body {
     flex-direction: row;
 }
 .gameDiv {
+    outline: solid 1px white;
     height: 520px;
-    /* outline: solid 1px white; */
     margin-right: 20px;
+    line-height: 1.25;
+    width: fit-content;
+    height: fit-content;
 }
 #top {
-    /* width: 700px; */
-    width: fit-content;
-    /* height: 150px; */
-    height: fit-content;
+
     margin-bottom: 20px;
-}
-.lineNumbers {
-    /* width: 120px; */
-    width: fit-content;
-    height: 1px;
-}
-.gameMain {
-    /* width: 240px; */
-    width: fit-content;
-    height: 1px;
 }
 /*
 #leftLineNumbers {

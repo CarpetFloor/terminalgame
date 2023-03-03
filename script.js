@@ -1,6 +1,6 @@
 /* for some reason any speed below 8 does not work properly (time taken to print does not calculate properly), 
 but if needed to print that fast maybe just update the innerHTML, which should work*/
-const printSpeed = 30;// 15;
+const printSpeed = 10;// 15;
 // number of vertical lines in playable game area
 const lineCount = 16;
 const lineLength = 12;
@@ -65,11 +65,6 @@ function calcTimeToPrint(content) {
     }
 
     return length * speed;
-}
-
-
-window.onload = () => {
-    setup(0);
 }
 
 // position of user
@@ -252,15 +247,6 @@ class MainComponent extends Component {
     }
 }
 
-// font used does not have different cases, so can simply write all text in lowercase
-components.push(new Component('top'));
-components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
-components.push(new LineNumbersComponent('leftLineNumbers'));
-components.push(new MainComponent('leftMain'));
-components.push(new LineNumbersComponent('rightLineNumbers'));
-// components.push(new MainComponent('rightMain'));
-// components.push(new Component('extra'));
-
 function setup(component) {
     if(component === 0) {
         gameData.initialize();
@@ -270,8 +256,12 @@ function setup(component) {
         if(component < components.length) {
             current.ref = components[component].ref;
 
-            console.log(components[component].name + ":");
-            console.log(components[component].content);
+            console.log("----------------------------------------------------------------------------------------------------");
+            console.log("print call:");
+            console.log("component: " + component);
+            console.log("content: " + components[component].content);
+            console.log("----------------------------------------------------------------------------------------------------");
+
             print(components[component].content);
 
             window.setTimeout(function () {
@@ -306,4 +296,18 @@ function setup(component) {
 
 function play() {
     console.log("game started!");
+}
+
+
+window.onload = () => {
+    components.push(new Component('top'));
+    components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
+    components.push(new LineNumbersComponent('leftLineNumbers'));
+    components.push(new MainComponent('leftMain'));
+    components.push(new LineNumbersComponent('rightLineNumbers'));
+    components.push(new MainComponent('rightMain'));
+    components.push(new Component('extra'));
+    components[components.length - 1].content = ">(:)"
+    
+    setup(0);
 }
