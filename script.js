@@ -1,4 +1,6 @@
-const printSpeed = 15;
+/* for some reason any speed below 8 does not work properly (time taken to print does not calculate properly), 
+but if needed to print that fast maybe just update the innerHTML, which should work*/
+const printSpeed = 30;// 15;
 // number of vertical lines in playable game area
 const lineCount = 16;
 const lineLength = 12;
@@ -217,10 +219,10 @@ class MainComponent extends Component {
             '\\', '|', ';', ':', 
             "'", '"', ',', '.', 
             '`', '~', 
-            'word', 'brackets' 
+            'w', 'b' 
         ];
 
-        this.lines = [];
+        this.generate();
     }
 
     generate() {
@@ -231,17 +233,21 @@ class MainComponent extends Component {
                 let selection = "";
 
                 // there is enough room to fit a word or bracket
-                if(j < (lineLength - gameData.wordLength)) {
-                    selection = this.possibleChars[random(0, this.possibleChars.length - 1)];
-                }
-                else {
-                    selection = this.possibleChars[random(0, this.possibleChars.length - 3)];
-                }
+                // if(j < (lineLength - gameData.wordLength)) {
+                //     selection = this.possibleChars[random(0, this.possibleChars.length - 1)];
+                // }
+                // else {
+                //     selection = this.possibleChars[random(0, this.possibleChars.length - 3)];
+                // }
+
+                selection = this.possibleChars[random(0, this.possibleChars.length - 3)];
+
+                // console.log("DEBUG: selection = " + selection);
 
                 currentLine += selection;
             }
 
-            this.lines += currentLine;
+            this.content += currentLine + "<br>";
         }
     }
 }
@@ -264,6 +270,8 @@ function setup(component) {
         if(component < components.length) {
             current.ref = components[component].ref;
 
+            console.log(components[component].name + ":");
+            console.log(components[component].content);
             print(components[component].content);
 
             window.setTimeout(function () {
@@ -272,7 +280,16 @@ function setup(component) {
         }
         // reprint top
         else {
+            /* the height of the top div is set to fit-text so that it can expand to however tall it needs to be, 
+            however, once the first of two sets of content is printed out, it will not need to get any larger. And, 
+            it will even shrink when the second set of content starts to print. So, to prevent it from shrinking 
+            (because when it shrinks all of the content below it are moved up) get its current height and make it 
+            not fit-content before the second set of content starts to print
+            */
             current.ref = components[getComponentIndex("top")].ref;
+
+            let height = current.ref.clientHeight;
+            current.ref.style.height = height + "px";
 
             components[getComponentIndex("top")].content = 
                 'hello, and welcome to the system!<br>please enter your password<br><br>password attempts: █ █ █';

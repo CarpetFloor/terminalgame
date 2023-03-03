@@ -1,11 +1,13 @@
-/* font */
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
+@font-face {
+    font-family: Retro;
+    src: url("Apple\ ][.ttf");
+}
 
 body {
-    font-family: 'Silkscreen';
+    font-family: Retro;
     background-color: black;
     color: #00FF99;
-    font-size: 25px;
+    font-size: 20px;
     user-select: none;
 }
 #mainGameContainer {
@@ -20,17 +22,25 @@ body {
 }
 .gameDiv {
     height: 520px;
-    outline: solid 1px white;
+    /* outline: solid 1px white; */
+    margin-right: 20px;
 }
 #top {
-    width: 700px;
-    height: 150px;
+    /* width: 700px; */
+    width: fit-content;
+    /* height: 150px; */
+    height: fit-content;
+    margin-bottom: 20px;
 }
 .lineNumbers {
-    width: 135px;
+    /* width: 120px; */
+    width: fit-content;
+    height: 1px;
 }
 .gameMain {
-    width: 250px;
+    /* width: 240px; */
+    width: fit-content;
+    height: 1px;
 }
 /*
 #leftLineNumbers {
