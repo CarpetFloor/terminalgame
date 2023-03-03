@@ -1,0 +1,50 @@
+/* font */
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
+
+body {
+    font-family: 'Silkscreen';
+    background-color: black;
+    color: #00FF99;
+    font-size: 25px;
+    user-select: none;
+}
+#mainGameContainer {
+    display: flex;
+    flex-direction: column;
+    margin-left: 25px;
+    margin-top: 30px;
+}
+#bottomHalf {
+    display: flex;
+    flex-direction: row;
+}
+.gameDiv {
+    height: 520px;
+    outline: solid 1px white;
+}
+#top {
+    width: 700px;
+    height: 150px;
+}
+.lineNumbers {
+    width: 135px;
+}
+.gameMain {
+    width: 250px;
+}
+/*
+#leftLineNumbers {
+    background-color: blue;
+}
+#leftMain {
+    background-color: aqua;
+}
+#rightLineNumbers {
+    background-color: red;
+}
+#rightMain {
+    background-color: orange;
+}
+#extra {
+    background-color: greenyellow;
+} */
