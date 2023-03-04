@@ -30,22 +30,9 @@ body {
     height: fit-content;
 }
 #top {
-
     margin-bottom: 20px;
 }
-/*
-#leftLineNumbers {
-    background-color: blue;
-}
-#leftMain {
-    background-color: aqua;
-}
-#rightLineNumbers {
-    background-color: red;
-}
-#rightMain {
-    background-color: orange;
-}
 #extra {
-    background-color: greenyellow;
-} */
+    display: flex;
+    align-items: flex-end;
+}

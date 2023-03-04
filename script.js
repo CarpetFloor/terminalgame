@@ -1,8 +1,9 @@
-/* for some reason any speed below 4 does not work properly (time taken to print does not calculate properly), 
+/* for some reason any speed below 5 does not work properly (time taken to print does not calculate properly), 
 but if needed to print that fast maybe just update the innerHTML, which should work*/
-const printSpeed = 4;// 15;
+const printSpeed = 5;// 15;
 // number of vertical lines in playable game area
 const lineCount = 16;
+// width of each line in playable game area in characters
 const lineLength = 12;
 
 /**
@@ -71,7 +72,7 @@ function calcTimeToPrint(content) {
         }
     }
     
-    let speed = Math.floor(printSpeed * 1.5);
+    let speed = Math.floor(printSpeed * 1.2);
     if(printSpeed === 0) {
         speed = 10;
     }
@@ -258,6 +259,7 @@ class MainComponent extends Component {
     }
 }
 
+let gameDivHeight = 0;
 function setup(component) {
     if(component === 0) {
         gameData.initialize();
@@ -265,15 +267,25 @@ function setup(component) {
 
     if(component <= components.length) {
         if(component < components.length) {
-            current.ref = components[component].ref;
-
             /* Similar to top div height (explained below under the else), all game divs should be the same height as the 
             left line numbers. This is done so that the extra div off to the far right can be set to a fixed height so that 
             the text can be aligned to the bottom*/
+            if(components[component].name == "leftMain") {
+                gameDivHeight = current.ref.clientHeight;
 
-            if(components[component].name == "leftLineNumbers") {
-                console.log("yes!");
+                let gameDivs = document.getElementsByClassName("gameDiv");
+                for(let i = 0; i < gameDivs.length; i++) {
+                    // don't make the top div as tall as the other divs (the main game area)
+                    if(gameDivs[i].id != "top") {
+                        gameDivs[i].style.height = gameDivHeight + "px";
+                    }
+
+                    console.log(gameDivs[i].style.height);
+                }
             }
+            
+            current.ref = components[component].ref;
+
 
             console.log("----------------------------------------------------------------------------------------------------");
             console.log("print call:");
@@ -325,7 +337,7 @@ window.onload = () => {
     components.push(new LineNumbersComponent('rightLineNumbers'));
     components.push(new MainComponent('rightMain'));
     components.push(new Component('extra'));
-    components[components.length - 1].content = ">(:)"
+    components[components.length - 1].content = ">x<br>Hint found"
     
     setup(0);
 }
