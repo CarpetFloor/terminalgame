@@ -1,4 +1,4 @@
-/* for some reason any speed below 5 does not work properly (time taken to print does not calculate properly), 
+/* for some reason any speed below 5 does not work properly (time taken to print does not calculate properly),
 but if needed to print that fast maybe just update the innerHTML, which should work*/
 const printSpeed = 5;// 15;
 // number of vertical lines in playable game area
@@ -18,11 +18,11 @@ function random(min, max) {
 
 // object that represents the current textarea and printing data stuff
 let current = {
-    ref: document.getElementById(''), 
+    ref: document.getElementById(''),
     text: 'empty',
-    printSpeed: 100,  
+    printSpeed: 100,
     // the current character of the content to be printed out
-    printIndex: 0, 
+    printIndex: 0,
 };
 
 let printIndex = 0;
@@ -56,7 +56,7 @@ function replace(content) {
 }
 
 /**
- * not able to just get the length of the content and multiply by printSpeed because <br> is used for newlines, 
+ * not able to just get the length of the content and multiply by printSpeed because <br> is used for newlines,
  * and when printing doesn't take any longer than a single character
  * @param content the content that is to be printed
  * @returns the length of time in miliseconds it will take to print the content
@@ -72,7 +72,7 @@ function calcTimeToPrint(content) {
         }
     }
     
-    let speed = Math.floor(printSpeed * 1.2);
+    let speed = Math.floor(printSpeed * 1.4);
     if(printSpeed === 0) {
         speed = 10;
     }
@@ -82,12 +82,12 @@ function calcTimeToPrint(content) {
 
 // position of user
 let position = {
-    row: -1, 
+    row: -1,
     i: -1
 }
 
 let gameData = {
-    difficultyOptions: [3, 4, 5, 7], 
+    difficultyOptions: [3, 4, 5, 7],
     /**
      * Impacts:
      * -Word length
@@ -95,11 +95,11 @@ let gameData = {
      * -Bracket occurance
      * -Lives
      */
-    difficulty: -1, 
-    wordLength: -1, 
-    wordFrequency: -1, 
+    difficulty: -1,
+    wordLength: -1,
+    wordFrequency: -1,
     bracketFrequency: -1,
-    lives: -1, 
+    lives: -1,
     initialize: function() {
         this.difficulty = this.difficultyOptions[0];
         this.wordLength = this.difficulty;
@@ -124,7 +124,7 @@ let gameData = {
 
 let components = [];
 /**
- * 
+ *
  * @param name the name/ ref of the component to look for
  * @returns the index in the components array of the component
  */
@@ -179,7 +179,7 @@ class LineNumbersComponent extends Component {
             if(i === 0 && this.name == "leftLineNumbers") {
                 /**
                  * only the first half so don't have to worry about
-                 * situations where first number is 0xFFFF, and then 
+                 * situations where first number is 0xFFFF, and then
                  * have to deal with carry of first bit
                  */
                 // can't use this. because accessing a static variable of the class
@@ -214,19 +214,19 @@ class MainComponent extends Component {
         super(name);
 
         /**
-         * the last two are for adding a word, 
+         * the last two are for adding a word,
          * or adding matching brackets
          */
         this.possibleChars = [
-            '[', ']', '{', '}', 
-            '(', ')', "<", ">", 
-            '!', '@', '#', '$', 
-            '%', "^", '&', '*', 
-            '-', '_', '=', '+', 
-            '\\', '|', ';', ':', 
-            "'", '"', ',', '.', 
-            '`', '~', 
-            'w', 'b' 
+            '[', ']', '{', '}',
+            '(', ')', "<", ">",
+            '!', '@', '#', '$',
+            '%', "^", '&', '*',
+            '-', '_', '=', '+',
+            '\\', '|', ';', ':',
+            "'", '"', ',', '.',
+            '`', '~',
+            'w', 'b'
         ];
 
         this.generate();
@@ -267,8 +267,8 @@ function setup(component) {
 
     if(component <= components.length) {
         if(component < components.length) {
-            /* Similar to top div height (explained below under the else), all game divs should be the same height as the 
-            left line numbers. This is done so that the extra div off to the far right can be set to a fixed height so that 
+            /* Similar to top div height (explained below under the else), all game divs should be the same height as the
+            left line numbers. This is done so that the extra div off to the far right can be set to a fixed height so that
             the text can be aligned to the bottom*/
             if(components[component].name == "leftMain") {
                 gameDivHeight = current.ref.clientHeight;
@@ -301,10 +301,10 @@ function setup(component) {
         }
         // reprint top
         else {
-            /* The height of the top div is set to fit-text so that it can expand to however tall it needs to be, 
-            however, once the first of two sets of content is printed out, it will not need to get any larger. And, 
-            it will even shrink when the second set of content starts to print. So, to prevent it from shrinking 
-            (because when it shrinks all of the content below it are moved up) get its current height and make it 
+            /* The height of the top div is set to fit-text so that it can expand to however tall it needs to be,
+            however, once the first of two sets of content is printed out, it will not need to get any larger. And,
+            it will even shrink when the second set of content starts to print. So, to prevent it from shrinking
+            (because when it shrinks all of the content below it are moved up) get its current height and make it
             not fit-content before the second set of content starts to print
             */
             current.ref = components[getComponentIndex("top")].ref;
@@ -312,7 +312,7 @@ function setup(component) {
             let height = current.ref.clientHeight;
             current.ref.style.height = height + "px";
 
-            components[getComponentIndex("top")].content = 
+            components[getComponentIndex("top")].content =
                 'hello, and welcome to the system!<br>please enter your password<br><br>password attempts: █ █ █';
             
             replace(components[getComponentIndex("top")].content);
