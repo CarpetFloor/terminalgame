@@ -1,10 +1,16 @@
-/* for some reason any speed below 8 does not work properly (time taken to print does not calculate properly), 
+/* for some reason any speed below 4 does not work properly (time taken to print does not calculate properly), 
 but if needed to print that fast maybe just update the innerHTML, which should work*/
-const printSpeed = 10;// 15;
+const printSpeed = 4;// 15;
 // number of vertical lines in playable game area
 const lineCount = 16;
 const lineLength = 12;
 
+/**
+ * Generates a random integer from a given inclusive range
+ * @param min the minimum number in the range (inclusive)
+ * @param max the maximum number in the range (inclusive)
+ * @returns the random integer
+ */
 function random(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
@@ -19,6 +25,10 @@ let current = {
 };
 
 let printIndex = 0;
+/**
+ * One iteration of printing content (1 call of this function only prints a single character of the content)
+ * @param content the content to be printe
+ */
 function print(content) {
     if(content.substring(printIndex, printIndex + 4) == '<br>') {
         current.ref.innerHTML += '<br>';
@@ -47,6 +57,8 @@ function replace(content) {
 /**
  * not able to just get the length of the content and multiply by printSpeed because <br> is used for newlines, 
  * and when printing doesn't take any longer than a single character
+ * @param content the content that is to be printed
+ * @returns the length of time in miliseconds it will take to print the content
  */
 function calcTimeToPrint(content) {
     let length = 0;
@@ -59,7 +71,7 @@ function calcTimeToPrint(content) {
         }
     }
     
-    let speed = Math.floor(printSpeed * 1.25);
+    let speed = Math.floor(printSpeed * 1.5);
     if(printSpeed === 0) {
         speed = 10;
     }
@@ -110,7 +122,6 @@ let gameData = {
  */
 
 let components = [];
-let lineRightStartsOn = -1;
 /**
  * 
  * @param name the name/ ref of the component to look for
@@ -256,6 +267,14 @@ function setup(component) {
         if(component < components.length) {
             current.ref = components[component].ref;
 
+            /* Similar to top div height (explained below under the else), all game divs should be the same height as the 
+            left line numbers. This is done so that the extra div off to the far right can be set to a fixed height so that 
+            the text can be aligned to the bottom*/
+
+            if(components[component].name == "leftLineNumbers") {
+                console.log("yes!");
+            }
+
             console.log("----------------------------------------------------------------------------------------------------");
             console.log("print call:");
             console.log("component: " + component);
@@ -270,7 +289,7 @@ function setup(component) {
         }
         // reprint top
         else {
-            /* the height of the top div is set to fit-text so that it can expand to however tall it needs to be, 
+            /* The height of the top div is set to fit-text so that it can expand to however tall it needs to be, 
             however, once the first of two sets of content is printed out, it will not need to get any larger. And, 
             it will even shrink when the second set of content starts to print. So, to prevent it from shrinking 
             (because when it shrinks all of the content below it are moved up) get its current height and make it 
@@ -292,7 +311,6 @@ function setup(component) {
         }
     }
 }
-
 
 function play() {
     console.log("game started!");

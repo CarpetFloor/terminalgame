@@ -1,1 +1,1 @@
--If the window goes out of focus at all (and even if focus goes back to the window) before the initialization printing is finnished, the stuff getting printed out will get messed up
+-If switching to another tab (not window) (and even if focus goes back to the window) before the initialization printing is finnished, the stuff getting printed out will get messed up
