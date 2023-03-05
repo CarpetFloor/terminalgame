@@ -42,6 +42,8 @@ body {
     align-items: flex-end;
 }
 span {
-    background: white;
+    background: var(--mainColor);
     color: var(--bgColor);
+    padding-top: 5px;
+    padding-bottom: 5px;
 }

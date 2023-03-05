@@ -532,6 +532,14 @@ function keydown(e) {
         case "ArrowRight":
             horizontalMove(1);
             break;
+        
+        case "ArrowUp":
+            verticalMove(-1);
+            break;
+        
+        case "ArrowDown":
+            verticalMove(1);
+            break;
     }
     
 }
@@ -583,7 +591,9 @@ function horizontalMove(amount) {
 }
 
 function verticalMove(amount) {
-    //
+    pos += lineLength * amount;
+    
+    displayCursor();
 }
 
 function select() {
@@ -634,6 +644,7 @@ function displayCursor() {
     
     console.clear();
     console.log(pos, leftNoSpan.charAt(pos), onLeft);
+    console.log(originalLeft.length, originalLeft)
     console.log(leftNoSpan.length, leftNoSpan);
     console.log(left.length, left);
 }
