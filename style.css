@@ -12,7 +12,7 @@ body {
     font-family: Retro;
     background-color: var(--bgColor);
     color: var(--mainColor);
-    font-size: 20px;
+    font-size: 15px;
     user-select: none;
     text-transform: uppercase;
 }
@@ -44,4 +44,5 @@ body {
 span {
     background: var(--mainColor);
     color: var(--bgColor);
+    text-transform: lowercase;
 }

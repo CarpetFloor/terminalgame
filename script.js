@@ -1,6 +1,6 @@
-/* for some reason any speed below 4 does not work properly (time taken to print does not calculate properly),
+/* for some reason any speed below 5 does not work properly (time taken to print does not calculate properly),
 but if needed to print that fast maybe just update the innerHTML, which should work*/
-const printSpeed = 4;// 10;
+const printSpeed = 5;// 10;
 // number of vertical lines in playable game area
 const lineCount = 16;
 // width of each line in playable game area in characters
@@ -482,12 +482,11 @@ function setup(component) {
     }
 }
 
-// the position of the user, which is their index of the main game content
-let pos
-
-// the following 4 are for the left and right game content
+// the followingare for the left and right game content
 let originalLeft = "";
 let originalRight = "";
+let leftNoSpan = "";
+let rightNoSpan = "";
 let left = "";
 let right = "";
 // remove the <br>'s to allow easier parsing
@@ -505,6 +504,9 @@ function formatMainContent() {
             right += originalRight.charAt(i);
         }
     }
+    
+    leftNoSpan = left;
+    rightNoSpan = right;
 }
 
 function play() {
@@ -512,28 +514,108 @@ function play() {
     
     // only on keyup so that the user is not able to hold down a key to keep moving
     let inputListener = document.addEventListener("keyup", processInput);
+     
+    // show cursor player cursor
+    displayCursor();
 }
 
 function processInput(e) {
     switch(e.key) {
-        case: "ArrowLeft":
+        case "ArrowLeft":
+            horizontalMove(-1);
             break;
         
-        case: "ArrowRight":
+        case "ArrowRight":
+            horizontalMove(1);
             break;
         
-        case: "ArrowUp":
+        case "ArrowUp":
+            verticalMove(-1);
             break;
         
-        case: "ArrowDown":
+        case "ArrowDown":
+            verticalMove(1);
             break;
         
         // the enter/ select/ try this word key
-        case: " ":
+        case " ":
+            select();
             break;
     }
 }
 
+// the position of the user, which is their index of the main game content
+let pos = 0;
+// if the player is on the left side of the game or not
+let onLeft = true;
+
+function horizontalMove(amount) {
+    // on the left side
+    if(onLeft) {
+        // don't allow moving left if it will move player out of bounds
+        if(pos + amount >= 0) {
+            pos += amount;
+            
+            // move from left side to right side
+            if(pos > lineLength * lineCount)  {
+                onLeft = false;
+                
+                pos = 0;
+            }
+        }
+    }
+    // on the right side
+    else {
+        // don't allow moving right if it will move player out of bounds
+        if(pos + amount < lineLength * lineCount)  {
+            pos += amount;
+            
+            // move from right side to left side
+            if(pos < 0) {
+                onLeft = true;
+                
+                pos = lineLength * lineCount;
+            }
+        }
+    }
+    
+    displayCursor();
+}
+
+function verticalMove(amount) {
+    //
+}
+
+function select() {
+    //
+}
+
+function displayCursor() {
+    if(onLeft) {
+        left = "";
+        
+        for(let i = 0; i < leftNoSpan.length; i++) {
+            if(i > 0 && i % lineLength === 0) {
+                left += "<br>"
+            }
+            
+            if(i == pos) {
+                left += "<span>" + leftNoSpan.charAt(i) + "</span>";
+            }
+            else {
+                left += leftNoSpan.charAt(i);
+            }
+        }
+        
+        current.ref = components[getComponentIndex("leftMain")].ref;
+        update(left);
+        
+        console.clear();
+        console.log(pos, leftNoSpan.charAt(pos), onLeft);
+        console.log(leftNoSpan.length, leftNoSpan);
+        console.log(left.length, left);
+    }
+}
 
 window.onload = () => {
     setDifficulty(4);
