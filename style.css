@@ -42,7 +42,6 @@ body {
     align-items: flex-end;
 }
 span {
-    background: var(--mainColor);
+    background: white;
     color: var(--bgColor);
-    text-transform: lowercase;
 }

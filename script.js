@@ -1,6 +1,6 @@
 /* for some reason any speed below 5 does not work properly (time taken to print does not calculate properly),
 but if needed to print that fast maybe just update the innerHTML, which should work*/
-const printSpeed = 5;// 10;
+const printSpeed = 10;// 10;
 // number of vertical lines in playable game area
 const lineCount = 16;
 // width of each line in playable game area in characters
@@ -509,17 +509,21 @@ function formatMainContent() {
     rightNoSpan = right;
 }
 
+const delay = 125;
+let keydownListener;
 function play() {
     formatMainContent();
-    
-    // only on keyup so that the user is not able to hold down a key to keep moving
-    let inputListener = document.addEventListener("keyup", processInput);
-     
-    // show cursor player cursor
-    displayCursor();
+
+    window.setTimeout(function () {
+        displayCursor();
+        
+        window.setTimeout(function() {
+            keydownListener = document.addEventListener("keydown", keydown);
+        }, 250);
+    }, 500);
 }
 
-function processInput(e) {
+function keydown(e) {
     switch(e.key) {
         case "ArrowLeft":
             horizontalMove(-1);
@@ -528,20 +532,8 @@ function processInput(e) {
         case "ArrowRight":
             horizontalMove(1);
             break;
-        
-        case "ArrowUp":
-            verticalMove(-1);
-            break;
-        
-        case "ArrowDown":
-            verticalMove(1);
-            break;
-        
-        // the enter/ select/ try this word key
-        case " ":
-            select();
-            break;
     }
+    
 }
 
 // the position of the user, which is their index of the main game content
@@ -557,7 +549,11 @@ function horizontalMove(amount) {
             pos += amount;
             
             // move from left side to right side
-            if(pos > lineLength * lineCount)  {
+            if(pos >= lineLength * lineCount)  {
+                // clear cursor on left side
+                pos = -1;
+                displayCursor();
+                
                 onLeft = false;
                 
                 pos = 0;
@@ -572,9 +568,13 @@ function horizontalMove(amount) {
             
             // move from right side to left side
             if(pos < 0) {
+                // clear cursor on right side
+                pos = -1;
+                displayCursor();
+                
                 onLeft = true;
                 
-                pos = lineLength * lineCount;
+                pos = (lineLength * lineCount) - 1;
             }
         }
     }
@@ -591,6 +591,7 @@ function select() {
 }
 
 function displayCursor() {
+    // left
     if(onLeft) {
         left = "";
         
@@ -609,12 +610,32 @@ function displayCursor() {
         
         current.ref = components[getComponentIndex("leftMain")].ref;
         update(left);
-        
-        console.clear();
-        console.log(pos, leftNoSpan.charAt(pos), onLeft);
-        console.log(leftNoSpan.length, leftNoSpan);
-        console.log(left.length, left);
     }
+    // right
+    else {
+        right = "";
+        
+        for(let i = 0; i < rightNoSpan.length; i++) {
+            if(i > 0 && i % lineLength === 0) {
+                right += "<br>"
+            }
+            
+            if(i == pos) {
+                right += "<span>" + rightNoSpan.charAt(i) + "</span>";
+            }
+            else {
+                right += rightNoSpan.charAt(i);
+            }
+        }
+        
+        current.ref = components[getComponentIndex("rightMain")].ref;
+        update(right);
+    }
+    
+    console.clear();
+    console.log(pos, leftNoSpan.charAt(pos), onLeft);
+    console.log(leftNoSpan.length, leftNoSpan);
+    console.log(left.length, left);
 }
 
 window.onload = () => {
@@ -634,5 +655,7 @@ window.onload = () => {
     components.push(new Component('extra'));
     components[components.length - 1].content = ">nothing";
     
-    setup(0);
+    window.setTimeout(function() {
+        setup(0);
+    }, 250);
 };
