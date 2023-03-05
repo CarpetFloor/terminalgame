@@ -328,7 +328,7 @@ class MainComponent extends Component {
                             do {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
-                            while (wordToPrint.length != gameData.wordLength);
+                            while (gameData.wordLength > wordToPrint.length);
                             
                             lastSelection = selection;
                             
