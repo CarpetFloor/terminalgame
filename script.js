@@ -50,6 +50,11 @@ function print(content) {
     }
 }
 
+// like print, but instantly prints stuff out
+function update(content) {
+    current.ref.innerHTML = content;
+}
+
 function replace(content) {
     current.ref.innerHTML = '';
     print(content);
@@ -79,12 +84,6 @@ function calcTimeToPrint(content) {
 
     return length * speed;
 }
-
-// position of user
-let position = {
-    row: -1,
-    i: -1
-};
 
 let gameData = {
     difficultyOptions: [3, 4, 5, 7],
@@ -130,8 +129,6 @@ let gameData = {
         if(this.attempts < 1) {
             this.attempts = 1;
         }
-        console.log(this);
-        console.log(MainComponent.possibleChars);
     }
 };
 
@@ -337,7 +334,6 @@ class MainComponent extends Component {
                             wordI = 1;
                         }
                         else {
-                            console.log("need to space stuff out");
                             /* 3 + gameData.wordFrequency because the 3 gets the the last regular possibleChar that is not
                             a word or bracket, but then have to add gameData.wordFrequency to account for all of the extra
                             w's that are added into the array*/
@@ -389,8 +385,6 @@ class MainComponent extends Component {
                         // finish the bracket sequence by adding the closing bracket
                         wordToPrint += bracketSet.charAt(1);
                         
-                        // console.log("BRACKETS: generate bracket sequence", wordToPrint, "at location", i);
-                        
                         lastSelection = selection;
                         
                         // print out the first character of wordToPrint
@@ -424,8 +418,6 @@ class MainComponent extends Component {
                     // don't need to reset wordI because it gets reset when the next word or bracket sequence is chosen
                 }
             }
-            
-            // console.log("now", selection, "word", wordToPrint, "last", lastSelection);
             
             this.content += selection;
             
@@ -490,11 +482,56 @@ function setup(component) {
     }
 }
 
+// the position of the user, which is their index of the main game content
+let pos
+
+// the following 4 are for the left and right game content
+let originalLeft = "";
+let originalRight = "";
+let left = "";
+let right = "";
+// remove the <br>'s to allow easier parsing
+function formatMainContent() {
+    originalLeft = components[getComponentIndex("leftMain")].content;
+    originalRight = components[getComponentIndex("rightMain")].content;
+    
+    // the left and right sides are the same size
+    for(let i = 0; i < originalLeft.length; i++) {
+        if(originalLeft.substring(i, i + 4) == '<br>') {
+            i += 3;
+        }
+        else {
+            left += originalLeft.charAt(i);
+            right += originalRight.charAt(i);
+        }
+    }
+}
+
 function play() {
-    console.log("words", gameData.wordCount, "max", gameData.maxWords);
-    console.log("brackets", gameData.bracketSetCount, "max", gameData.maxBracketSets);
+    formatMainContent();
+    
+    // only on keyup so that the user is not able to hold down a key to keep moving
+    let inputListener = document.addEventListener("keyup", processInput);
+}
+
+function processInput(e) {
+    switch(e.key) {
+        case: "ArrowLeft":
+            break;
         
-    console.log("game started!");
+        case: "ArrowRight":
+            break;
+        
+        case: "ArrowUp":
+            break;
+        
+        case: "ArrowDown":
+            break;
+        
+        // the enter/ select/ try this word key
+        case: " ":
+            break;
+    }
 }
 
 
@@ -503,10 +540,15 @@ window.onload = () => {
     
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
+    
     components.push(new LineNumbersComponent('leftLineNumbers'));
+    
     components.push(new MainComponent('leftMain'));
+    
     components.push(new LineNumbersComponent('rightLineNumbers'));
+    
     components.push(new MainComponent('rightMain'));
+    
     components.push(new Component('extra'));
     components[components.length - 1].content = ">nothing";
     

@@ -1,4 +1,7 @@
+-Main menu
+-Tutorial
 -Color themes selection
 -Font size selection
 -Difficulty selection
 -Customize number of rows and cols (doesn't change difficulty in any way, but maybe do that too)
+-Custom keybinds

@@ -3,10 +3,15 @@
     src: url("Apple\ ][.ttf");
 }
 
+:root {
+    --mainColor: #00FF99;
+    --bgColor: black;
+}
+
 body {
     font-family: Retro;
-    background-color: black;
-    color: #00FF99;
+    background-color: var(--bgColor);
+    color: var(--mainColor);
     font-size: 20px;
     user-select: none;
     text-transform: uppercase;
@@ -35,4 +40,8 @@ body {
 #extra {
     display: flex;
     align-items: flex-end;
+}
+span {
+    background: var(--mainColor);
+    color: var(--bgColor);
 }
