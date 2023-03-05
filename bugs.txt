@@ -1,1 +1,3 @@
 -If switching to another tab (not window) (and even if focus goes back to the window) before the initialization printing is finnished, the stuff getting printed out will get messed up
+-The number of bracket sets generated might sometimes be more than the number of words - 1
+-Try to space out words more evenly

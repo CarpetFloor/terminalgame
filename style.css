@@ -22,10 +22,10 @@ body {
     flex-direction: row;
 }
 .gameDiv {
-    outline: solid 2px white;
+    /*outline: solid 2px white;*/
     height: 520px;
     margin-right: 20px;
-    line-height: 1.25;
+    line-height: 1.5;
     width: fit-content;
     height: fit-content;
 }
