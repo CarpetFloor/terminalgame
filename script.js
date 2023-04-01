@@ -77,7 +77,7 @@ function calcTimeToPrint(content) {
         }
     }
     
-    let speed = Math.floor(printSpeed * 1.4);
+    let speed = Math.floor(printSpeed * 1.5);
     if(printSpeed === 0) {
         speed = 10;
     }
@@ -549,6 +549,9 @@ let pos = 0;
 // if the player is on the left side of the game or not
 let onLeft = true;
 
+/**
+ * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
+ */
 function horizontalMove(amount) {
     // on the left side
     if(onLeft) {
@@ -590,11 +593,42 @@ function horizontalMove(amount) {
     displayCursor();
 }
 
+/**
+ * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
+ */
 function verticalMove(amount) {
+    let originalPosition = pos;
     pos += lineLength * amount;
 
-    if(pos < 0 || pos >= (lineCount * lineLength)) {
-        pos -= lineLength * amount;
+    if(pos < 0) {
+        if(onLeft) {
+            pos -= lineLength * amount;
+        }
+        else {         
+            // clear cursor on right side
+            pos = -1;
+            displayCursor();
+
+            onLeft = true;
+
+            pos = originalPosition + (lineLength * (lineCount - 1));
+            displayCursor();
+        }
+    }
+    else if(pos >= (lineCount * lineLength)) {
+        if(onLeft) {
+            // clear cursor on left side
+            pos = -1;
+            displayCursor();
+            
+            onLeft = false;
+            
+            pos = originalPosition - (lineLength * (lineCount - 1));
+            displayCursor();
+        }
+        else {         
+            pos -= lineLength * amount;
+        }
     }
     else {
         displayCursor();
@@ -647,11 +681,11 @@ function displayCursor() {
         update(right);
     }
     
-    console.clear();
-    console.log(pos, leftNoSpan.charAt(pos), onLeft);
-    console.log(originalLeft.length, originalLeft)
-    console.log(leftNoSpan.length, leftNoSpan);
-    console.log(left.length, left);
+    // console.clear();
+    // console.log(pos, leftNoSpan.charAt(pos), onLeft);
+    // console.log(originalLeft.length, originalLeft)
+    // console.log(leftNoSpan.length, leftNoSpan);
+    // console.log(left.length, left);
 }
 
 window.onload = () => {
