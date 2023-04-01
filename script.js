@@ -592,8 +592,13 @@ function horizontalMove(amount) {
 
 function verticalMove(amount) {
     pos += lineLength * amount;
-    
-    displayCursor();
+
+    if(pos < 0 || pos >= (lineCount * lineLength)) {
+        pos -= lineLength * amount;
+    }
+    else {
+        displayCursor();
+    }
 }
 
 function select() {
