@@ -379,7 +379,6 @@ const words = [
     "heart",
     "heat",
     "heavy",
-    "hell",
     "help",
     "here",
     "high",

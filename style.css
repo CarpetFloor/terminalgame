@@ -34,6 +34,9 @@ body {
     width: fit-content;
     height: fit-content;
 }
+p {
+    display: inline;
+}
 #top {
     margin-bottom: 20px;
 }
@@ -46,4 +49,5 @@ span {
     color: var(--bgColor);
     padding-top: 5px;
     padding-bottom: 5px;
+    width: fit-content;
 }

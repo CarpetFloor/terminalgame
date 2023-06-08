@@ -25,6 +25,7 @@ let current = {
     printIndex: 0,
 };
 
+let slowPrint = false;
 let printIndex = 0;
 /**
  * One iteration of printing content (1 call of this function only prints a single character of the content)
@@ -42,9 +43,14 @@ function print(content) {
 
     ++printIndex;
     if(printIndex < content.length) {
-        window.setTimeout(function() {
+        if(slowPrint) {
+            window.setTimeout(function() {
+                print(content);
+            }, printSpeed);
+        }
+        else {
             print(content);
-        }, printSpeed);
+        }
     } else {
         printIndex = 0;
     }
@@ -52,11 +58,137 @@ function print(content) {
 
 // like print, but instantly prints stuff out
 function update(content) {
-    current.ref.innerHTML = content;
+    current.ref.innerHTML = "";
+    
+    /**
+     * This is not very effecient, because there are multiple points at which similar parsing is used, thus 
+     * creating a lot of redundancy. The only reason why it is being used for this update function is because 
+     * for some reason when just directly setting the innerHTML of current.ref to content (which already has 
+     * HTML tags of <br> and <span>) sometimes there are issues with, to my understanding, bracket sets and 
+     * the text between each bracket not getting displayed. But it is worse, because for some reason all of 
+     * the text on the current line up until the bracket set will get printed, plus all of the text after 
+     * the bracket set; which means that if the bracket sets goes across multiple lines, more text than a 
+     * single line is supposed to contain will somehow get printed on a line, and then the line lengths and 
+     * location of newlines are off. While it would be best to try to optomize how parsing is done, I 
+     * have not noticed any noticeable decrease in performance, even on a lower-end computer, and coupled 
+     * with the fact that the scope of this entire game is rather quite small, I am fine with leaving things 
+     * the way they currently are, and mainly care if it works.
+     */
+    
+    let leftOfCursor = document.createElement("p");
+    let rightOfCursor = document.createElement("p");
+    
+    let cursor = document.createElement("span");
+    let reachedCursor = false;
+
+    for(let i = 0; i < content.length; i++) {
+        let spanTest = "";
+        if(i < content.length - 6) {
+            spanTest = content.substring(i, i + 6);
+        }
+
+        let brTest = "";
+        if(i < content.length - 4) {
+            brTest = content.substring(i, i + 4);
+        }
+        
+        if(spanTest == "<span>") {
+            // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
+            reachedCursor = true;
+
+            cursor.innerHTML = content[i + 6];
+
+            current.ref.appendChild(leftOfCursor);
+
+            current.ref.appendChild(cursor);
+
+            i += 13;
+        }
+        else if(brTest == "<br>") {
+            // currentContent.innerHTML += "<br>";
+
+            if(reachedCursor) {
+                rightOfCursor.innerHTML += "<br>";
+            }
+            else {
+                leftOfCursor.innerHTML += "<br>";                
+            }
+            
+            i += 3;
+        }
+        else {
+            // currentContent.innerText += content[i];
+
+            if(reachedCursor) {
+                rightOfCursor.innerHTML += content[i];
+            }
+            else {
+                leftOfCursor.innerHTML += content[i];                
+            }
+        };
+    }
+
+    current.ref.appendChild(rightOfCursor);
+}
+
+function clearCursorUpdateContent(content) {
+    current.ref.innerHTML = "";
+
+    for(let i = 0; i < content.length; i++) {
+        let brTest = "";
+        if(i < content.length - 4) {
+            brTest = content.substring(i, i + 4);
+        }
+        
+        if(brTest == "<br>") {
+            current.ref.innerHTML += "<br>";
+            
+            i += 3;
+        }
+        else {
+            current.ref.innerText += content[i];
+        };
+    }
+}
+
+function clearCursor(content) {
+    if(onLeft) {
+        left = "";
+
+        for(let i = 0; i < leftNoSpan.length; i++) {
+            if((i > 0) && (i % lineLength === 0)) {
+                left += "<br>";
+            }
+            
+            if(i != pos) {
+                left += leftNoSpan.charAt(i);
+            }
+        }
+        
+        current.ref = components[getComponentIndex("leftMain")].ref;
+        clearCursorUpdateContent(left);
+    }
+    // right
+    else {
+        right = "";
+
+        for(let i = 0; i < rightNoSpan.length; i++) {
+            if((i > 0) && (i % lineLength === 0)) {
+                right += "<br>";
+            }
+            
+            if(i != pos) {
+                right += rightNoSpan.charAt(i);
+            }
+        }
+        
+        current.ref = components[getComponentIndex("rightMain")].ref;
+        clearCursorUpdateContent(right);
+    }
 }
 
 function replace(content) {
-    current.ref.innerHTML = '';
+    current.ref.innerHTML = "";
     print(content);
 }
 
@@ -288,6 +420,9 @@ class MainComponent extends Component {
                     let quad = -1;
                     /* make sure that there are never 2 consecutive words, and make sure that a
                     word is never in a set of brackets */
+                    
+                    // let lastSelectionDoubleCheck = this.content[this.content.length - 1];
+
                     if(lastSelection != "w" && lastSelection != "b" && gameData.wordCount < gameData.maxWords) {
                         // get the current quadrant
                         // top
@@ -357,11 +492,11 @@ class MainComponent extends Component {
                 else if(selection == "b") {
                     /* make sure that there are never 2 consecutive words, and make sure that a
                     word is never in a set of brackets */
-                    if(lastSelection != "w" && lastSelection != "b" && gameData.bracketSetCount < gameData.maxBracketSets) {
+                    if(lastSelection != "w" && lastSelection != "b" && (gameData.bracketSetCount < gameData.maxBracketSets)) {
                         ++gameData.bracketSetCount;
                         
                         // first determine the number of characters between the brackets (does not include brackets)
-                        let bracketSetLength = random(2, 5);
+                        let bracketSetLength = random(3, 7);
                         
                         // choose which brackets to use
                         let bracketSet = MainComponent.possibleBrackets[
@@ -431,6 +566,7 @@ class MainComponent extends Component {
 }
 
 let gameDivHeight = 0;
+
 function setup(component) {
     if(component <= components.length) {
         if(component < components.length) {
@@ -453,9 +589,14 @@ function setup(component) {
 
             print(components[component].content);
 
-            window.setTimeout(function () {
+            if(slowPrint) {
+                window.setTimeout(function () {
+                    setup(component + 1);
+                }, calcTimeToPrint(components[component].content));
+            }
+            else{
                 setup(component + 1);
-            }, calcTimeToPrint(components[component].content));
+            }
         }
         // reprint top
         else {
@@ -475,9 +616,16 @@ function setup(component) {
             
             replace(components[getComponentIndex("top")].content);
 
-            window.setTimeout(function () {
-                play();
-            }, calcTimeToPrint(components[getComponentIndex("top")].content));
+            if(slowPrint) {
+                window.setTimeout(function () {
+                    play();
+                }, calcTimeToPrint(components[getComponentIndex("top")].content));
+            }
+            else {
+                window.setTimeout(function() {
+                    play();
+                }, 200);
+            }
         }
     }
 }
@@ -493,10 +641,11 @@ let right = "";
 function formatMainContent() {
     originalLeft = components[getComponentIndex("leftMain")].content;
     originalRight = components[getComponentIndex("rightMain")].content;
-    
+
     // the left and right sides are the same size
     for(let i = 0; i < originalLeft.length; i++) {
-        if(originalLeft.substring(i, i + 4) == '<br>') {
+        // the left and right sides are the same size
+        if(originalLeft.substring(i, i + 4) == "<br>") {
             i += 3;
         }
         else {
@@ -511,16 +660,15 @@ function formatMainContent() {
 
 const delay = 125;
 let keydownListener;
+
 function play() {
     formatMainContent();
 
-    window.setTimeout(function () {
-        displayCursor();
-        
-        window.setTimeout(function() {
-            keydownListener = document.addEventListener("keydown", keydown);
-        }, 250);
-    }, 500);
+    displayCursor();
+    
+    window.setTimeout(function() {
+        keydownListener = document.addEventListener("keydown", keydown);
+    }, 200);
 }
 
 function keydown(e) {
@@ -562,8 +710,9 @@ function horizontalMove(amount) {
             // move from left side to right side
             if(pos >= lineLength * lineCount)  {
                 // clear cursor on left side
-                pos = -1;
-                displayCursor();
+                // pos = -1;
+                // displayCursor();
+                clearCursor();
                 
                 onLeft = false;
                 
@@ -580,8 +729,9 @@ function horizontalMove(amount) {
             // move from right side to left side
             if(pos < 0) {
                 // clear cursor on right side
-                pos = -1;
-                displayCursor();
+                // pos = -1;
+                // displayCursor();
+                clearCursor();
                 
                 onLeft = true;
                 
@@ -605,9 +755,7 @@ function verticalMove(amount) {
             pos -= lineLength * amount;
         }
         else {         
-            // clear cursor on right side
-            pos = -1;
-            displayCursor();
+            clearCursor();
 
             onLeft = true;
 
@@ -617,9 +765,7 @@ function verticalMove(amount) {
     }
     else if(pos >= (lineCount * lineLength)) {
         if(onLeft) {
-            // clear cursor on left side
-            pos = -1;
-            displayCursor();
+            clearCursor();
             
             onLeft = false;
             
@@ -643,10 +789,10 @@ function displayCursor() {
     // left
     if(onLeft) {
         left = "";
-        
+
         for(let i = 0; i < leftNoSpan.length; i++) {
-            if(i > 0 && i % lineLength === 0) {
-                left += "<br>"
+            if((i > 0) && (i % lineLength === 0)) {
+                left += "<br>";
             }
             
             if(i == pos) {
@@ -663,10 +809,10 @@ function displayCursor() {
     // right
     else {
         right = "";
-        
+
         for(let i = 0; i < rightNoSpan.length; i++) {
-            if(i > 0 && i % lineLength === 0) {
-                right += "<br>"
+            if((i > 0) && (i % lineLength === 0)) {
+                right += "<br>";
             }
             
             if(i == pos) {
@@ -680,7 +826,7 @@ function displayCursor() {
         current.ref = components[getComponentIndex("rightMain")].ref;
         update(right);
     }
-    
+
     // console.clear();
     // console.log(pos, leftNoSpan.charAt(pos), onLeft);
     // console.log(originalLeft.length, originalLeft)
@@ -707,5 +853,5 @@ window.onload = () => {
     
     window.setTimeout(function() {
         setup(0);
-    }, 250);
+    }, 200);
 };
