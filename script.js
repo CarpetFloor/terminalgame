@@ -374,7 +374,8 @@ class LineNumbersComponent extends Component {
     }
 }
 
-let lettersIndices = [];
+let lettersLeftIndices = [];
+let lettersRightIndices = [];
 let bracketsIndices = [];
 class MainComponent extends Component {
     /**
@@ -400,15 +401,11 @@ class MainComponent extends Component {
         super(name);
 
         this.generate();
-
-        console.log("LETTERS:");
-        console.log(lettersIndices);
-        console.log("BRACKETS");
-        console.log(bracketsIndices);
     }
 
     // POSSIBLY split this into multiple smaller functions
     generate() {
+        let contentPos = 0;
         // what should be printed next
         let selection = "";
         // the last type of thing to print, so for each character of a word it will just be w
@@ -472,7 +469,12 @@ class MainComponent extends Component {
                             while (gameData.wordLength > wordToPrint.length);
 
                             for(let index = 0; index < wordToPrint.length; index++) {
-                                lettersIndices.push(this.content.length + index);
+                                if(this.name == "leftMain") {
+                                    lettersLeftIndices.push(contentPos + index);
+                                }
+                                else {
+                                    lettersRightIndices.push(contentPos + index);
+                                }
                             }
                             
                             lastSelection = selection;
@@ -517,7 +519,7 @@ class MainComponent extends Component {
                         
                         // start generating the bracket sequence by adding the opening bracket from the chosen bracket set
                         wordToPrint = bracketSet.charAt(0);
-                        bracketsIndices.push(this.content.length);
+                        // bracketsIndices.push(contentPos);
                         
                         // add all of the random characters in between the brackets
                         for(let j = 0; j < bracketSetLength; j++) {
@@ -528,13 +530,13 @@ class MainComponent extends Component {
                             MainComponent.possibleChars[
                             random(0,
                             MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
-                            bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
+                            // bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                             // "█";
                         }
                         
                         // finish the bracket sequence by adding the closing bracket
                         wordToPrint += bracketSet.charAt(1);
-                        bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
+                        // bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                         
                         lastSelection = selection;
                         
@@ -571,6 +573,7 @@ class MainComponent extends Component {
             }
             
             this.content += selection;
+            contentPos += selection.length;
             
             // reached the end of the current line
             if(i % lineLength === 0) {
@@ -800,6 +803,8 @@ let onChar = true;
 function displayCursor() {
     // left
     if(onLeft) {
+        checkCursorSelected(true);
+        
         left = "";
 
         for(let i = 0; i < leftNoSpan.length; i++) {
@@ -821,6 +826,8 @@ function displayCursor() {
     }
     // right
     else {
+        checkCursorSelected(true);
+
         right = "";
 
         for(let i = 0; i < rightNoSpan.length; i++) {
@@ -846,6 +853,59 @@ function displayCursor() {
     // console.log(originalLeft.length, originalLeft)
     // console.log(leftNoSpan.length, leftNoSpan);
     // console.log(left.length, left);
+}
+
+function checkCursorSelected(checkingLeft) {
+    let startIndex = -1;
+    let endIndex = -1;
+
+    console.clear();
+
+    console.log("LETTERS LEFT:")
+    console.log(lettersLeftIndices);
+    console.log("in?", lettersLeftIndices.includes(pos));
+    console.log("----------");
+
+    console.log("LETTERS RIGHT:")
+    console.log(lettersRightIndices);
+    console.log("in?", lettersRightIndices.includes(pos));
+    console.log("----------");
+
+    console.log("CURRENT:");
+    console.log(pos, leftNoSpan[pos]);
+
+    let inWord = false;
+    if(checkingLeft) {
+        if(lettersLeftIndices.includes(pos)) {
+            inWord = true;
+            cursorContent = "";
+    
+            let index = lettersLeftIndices.indexOf(pos);
+            
+            do {
+                --index;
+            }
+            while(lettersLeftIndices[index] == (lettersLeftIndices[index + 1] - 1));
+            startIndex = index;
+    
+            do {
+                ++index;
+    
+                // if(checkingLeft) {
+                //     cursorContent += leftNoSpan[index];
+                // }
+                // else {
+                //     cursorContent += rightNoSpan[index];
+                // }
+            }
+            while(lettersLeftIndices[index + 1] == (lettersLeftIndices[index - 1] + 1));
+            endIndex = index;
+    
+            console.log(cursorContent);
+        }
+    }
+    
+    onChar = !(inWord);
 }
 
 window.onload = () => {
