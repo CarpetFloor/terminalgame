@@ -56,6 +56,8 @@ function print(content) {
     }
 }
 
+// what the cursor is highlighting, which is a var because can be a single characdter, entire word, or bracket set
+let cursorContent = "";
 // like print, but instantly prints stuff out
 function update(content) {
     current.ref.innerHTML = "";
@@ -96,7 +98,7 @@ function update(content) {
             // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
             reachedCursor = true;
 
-            cursor.innerHTML = content[i + 6];
+            cursor.innerHTML = cursorContent;
 
             current.ref.appendChild(leftOfCursor);
 
@@ -372,6 +374,8 @@ class LineNumbersComponent extends Component {
     }
 }
 
+let lettersIndices = [];
+let bracketsIndices = [];
 class MainComponent extends Component {
     /**
      * the last two are for adding a word,
@@ -396,8 +400,13 @@ class MainComponent extends Component {
         super(name);
 
         this.generate();
+
+        console.log("LETTERS:");
+        console.log(lettersIndices);
+        console.log("BRACKETS");
+        console.log(bracketsIndices);
     }
-    
+
     // POSSIBLY split this into multiple smaller functions
     generate() {
         // what should be printed next
@@ -456,11 +465,15 @@ class MainComponent extends Component {
                             ++gameData.wordCount;
                             ++gameData.quadrantsWordCount[quad];
                             
-                            
+                            // THIS IS WHERE WORDS GET GENERATED AND ADDED TO THE GAME
                             do {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
                             while (gameData.wordLength > wordToPrint.length);
+
+                            for(let index = 0; index < wordToPrint.length; index++) {
+                                lettersIndices.push(this.content.length + index);
+                            }
                             
                             lastSelection = selection;
                             
@@ -504,6 +517,7 @@ class MainComponent extends Component {
                         
                         // start generating the bracket sequence by adding the opening bracket from the chosen bracket set
                         wordToPrint = bracketSet.charAt(0);
+                        bracketsIndices.push(this.content.length);
                         
                         // add all of the random characters in between the brackets
                         for(let j = 0; j < bracketSetLength; j++) {
@@ -514,11 +528,13 @@ class MainComponent extends Component {
                             MainComponent.possibleChars[
                             random(0,
                             MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
+                            bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                             // "█";
                         }
                         
                         // finish the bracket sequence by adding the closing bracket
                         wordToPrint += bracketSet.charAt(1);
+                        bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                         
                         lastSelection = selection;
                         
@@ -562,9 +578,8 @@ class MainComponent extends Component {
             }
             
         }
-      }
+    }
 }
-
 let gameDivHeight = 0;
 
 function setup(component) {
@@ -781,10 +796,7 @@ function verticalMove(amount) {
     }
 }
 
-function select() {
-    //
-}
-
+let onChar = true;
 function displayCursor() {
     // left
     if(onLeft) {
@@ -795,10 +807,11 @@ function displayCursor() {
                 left += "<br>";
             }
             
-            if(i == pos) {
+            if(i == pos && onChar) {
+                cursorContent = leftNoSpan.charAt(i);
                 left += "<span>" + leftNoSpan.charAt(i) + "</span>";
             }
-            else {
+            else if(onChar) {
                 left += leftNoSpan.charAt(i);
             }
         }
@@ -815,10 +828,11 @@ function displayCursor() {
                 right += "<br>";
             }
             
-            if(i == pos) {
+            if(i == pos && onChar) {
+                cursorContent = rightNoSpan.charAt(i);
                 right += "<span>" + rightNoSpan.charAt(i) + "</span>";
             }
-            else {
+            else if(onChar) {
                 right += rightNoSpan.charAt(i);
             }
         }
