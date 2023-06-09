@@ -89,17 +89,10 @@ function update(content) {
         }
 
         if(spanTest == "<span>") {
-            // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
             reachedCursor = true;
 
-            // console.clear();
-            // console.log("PRINTING:");
-            // console.log(content);
-
-            // cursorContent doesn't have <br>
             let actualCursorContent = "";
             let index = -1;
-            // while(content.substring(i + index, i + index + 7) != "</span>") {
             while(content.substring(i + index + 7, i + index + 7 + 7) != "</span>") {
                 // for some reason if word starts farthest to the left, it detects the <br> to the left of it
                 if((i == -1) && (content.substring(i + index + 7, i + index + 7 + 4) == "<br>")) {
@@ -113,56 +106,27 @@ function update(content) {
             }
 
             for(let index = 0; index < actualCursorContent.length; index++) {
-                // console.log(index + ": " + cursorContent[index]);   
                 let otherSubstring = actualCursorContent.substring(index, index + 4);
-                // console.log("Other Substring: " + otherSubstring);
-
-                console.log(index, actualCursorContent[index]);
-                console.log("otherSubstring: ", otherSubstring);
 
                 if(otherSubstring == "<br>") {
-                // if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
-                    // console.log("<br>?", (true));
-                    
                     if(index > 0) {
                         leftOfCursor.innerHTML += "<span>";
                         leftOfCursor.innerHTML += "</span>";
                         leftOfCursor.innerHTML += "<br>";
 
                         wordOnMultipleLines = true;
-
-                        // console.log("adding <br> from SPAN at " + (i + index));
                     }
 
                     index += 3;
                 }
                 else {
-                    // console.log("<br>?", (false));
-
                     leftOfCursor.innerHTML += "<span>" + actualCursorContent[index] + "</span>";
                 }
-
-                // leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
             }
-
-            // current.ref.appendChild(leftOfCursor);
-            
-            // current.ref.appendChild(cursor);
-
-            //leftOfCursor.appendChild(cursor);
-            // current.ref.appendChild(leftOfCursor);
 
             i += 12 + actualCursorContent.length;
         }
         else if(brTest == "<br>") {
-            // currentContent.innerHTML += "<br>";
-
-            // if(reachedCursor) {
-            //     rightOfCursor.innerHTML += "<br>";
-            // }
-            // else {
-            //     leftOfCursor.innerHTML += "<br>";
-            // }
 
             /**
              * For some reason, when a newline is added from a word spanning multiple lines, this 
@@ -176,20 +140,9 @@ function update(content) {
                 wordOnMultipleLines = false;
             }
 
-            // console.log("adding <br> from BR at " + (i));
-            
             i += 3;
         }
         else {
-            // currentContent.innerText += content[i];
-
-            // if(reachedCursor) {
-            //     rightOfCursor.innerHTML += content[i];
-            // }
-            // else {
-            //     leftOfCursor.innerHTML += content[i];                
-            // }
-
             leftOfCursor.innerHTML += content[i];
         };
     }
@@ -314,10 +267,6 @@ let gameData = {
             MainComponent.possibleChars.push("w");
             this.wordFrequency = 1;
         }
-        // this.wordFrequency = this.difficulty - 3;
-        // for(let i = 0; i < this.wordFrequency; i++) {
-        //     MainComponent.possibleChars.push("w");
-        // }
         this.maxWords = this.difficulty + 2;
         this.maxBracketSets = this.maxWords - 2;
         
@@ -594,8 +543,6 @@ class MainComponent extends Component {
                             MainComponent.possibleChars[
                             random(0,
                             MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
-                            // bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
-                            // "█";
                         }
                         
                         // finish the bracket sequence by adding the closing bracket
@@ -712,7 +659,7 @@ function setup(component) {
     }
 }
 
-// the followingare for the left and right game content
+// the following are for the left and right game content
 let originalLeft = "";
 let originalRight = "";
 let leftNoSpan = "";
@@ -791,9 +738,6 @@ function horizontalMove(amount) {
             
             // move from left side to right side
             if(pos >= lineLength * lineCount)  {
-                // clear cursor on left side
-                // pos = -1;
-                // displayCursor();
                 clearCursor();
                 
                 onLeft = false;
@@ -810,9 +754,6 @@ function horizontalMove(amount) {
             
             // move from right side to left side
             if(pos < 0) {
-                // clear cursor on right side
-                // pos = -1;
-                // displayCursor();
                 clearCursor();
                 
                 onLeft = true;
@@ -984,12 +925,6 @@ function displayCursor() {
         current.ref = components[getComponentIndex("rightMain")].ref;
         update(right);
     }
-
-    // console.clear();
-    // console.log(pos, leftNoSpan.charAt(pos), onLeft);
-    // console.log(originalLeft.length, originalLeft)
-    // console.log(leftNoSpan.length, leftNoSpan);
-    // console.log(left.length, left);
 }
 
 startIndex = -1;
@@ -1047,8 +982,7 @@ function checkCursorSelected(checkingLeft) {
 
 window.onload = () => {
     // 3, 4, 5, 7
-    // setDifficulty(4);
-    setDifficulty(5);
+    setDifficulty(4);
 
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
