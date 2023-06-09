@@ -99,12 +99,14 @@ function update(content) {
             reachedCursor = true;
 
             for(let index = 0; index < cursorContent.length; index++) {
-                if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
-                    leftOfCursor.innerHTML += "<span>" + "<br>" + cursorContent[index] + "</span>";
-                }
-                else {
-                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
-                }
+                // if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
+                //     leftOfCursor.innerHTML += "<span>" + "<br>" + cursorContent[index] + "</span>";
+                // }
+                // else {
+                //     leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
+                // }
+
+                leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
             }
 
             // current.ref.appendChild(leftOfCursor);
@@ -855,8 +857,7 @@ function displayCursor() {
         console.log(leftNoSpan);
         console.log(pos);
         console.log(onChar);
-        console.log(lettersLeftIndices[startIndex]);
-        console.log(lettersLeftIndices[endIndex]);
+
         for(let i = 0; i < leftNoSpan.length; i++) {
 
             if((i > 0) && (i % lineLength === 0)) {
@@ -873,10 +874,6 @@ function displayCursor() {
                 }
             }
             else {
-                // if((i == pos) && (pos >= lettersLeftIndices[startIndex]) && (pos <= lettersLeftIndices[endIndex])) {
-                //     left += "<span>" + cursorContent + "</span>";
-                // }
-                console.log(i);
                 if((i == lettersLeftIndices[startIndex]) && 
                 (pos >= lettersLeftIndices[startIndex]) && (pos <= lettersLeftIndices[endIndex])) {
                     left += "<span>" + cursorContent + "</span>";
@@ -901,18 +898,22 @@ function displayCursor() {
                 right += "<br>";
             }
             
-            if(i == pos && onChar) {
-                cursorContent = rightNoSpan.charAt(i);
-                right += "<span>" + rightNoSpan.charAt(i) + "</span>";
-            }
-            else if(i != pos) {
-                if(onChar) {
-                    right += rightNoSpan.charAt(i);
+            if(onChar) {
+                if(i == pos) {
+                    cursorContent = rightNoSpan.charAt(i);
+                    right += "<span>" + rightNoSpan.charAt(i) + "</span>";
                 }
                 else {
-                    if(!(cursorContent.includes(rightNoSpan.charAt(i)))) {
-                        right += rightNoSpan.charAt(i);
-                    }
+                    right += rightNoSpan.charAt(i);
+                }
+            }
+            else {
+                if((i == lettersRightIndices[startIndex]) && 
+                (pos >= lettersRightIndices[startIndex]) && (pos <= lettersRightIndices[endIndex])) {
+                    right += "<span>" + cursorContent + "</span>";
+                }
+                else if((i < lettersRightIndices[startIndex]) || (i > lettersRightIndices[endIndex])) {
+                    right += rightNoSpan.charAt(i);
                 }
             }
         }
