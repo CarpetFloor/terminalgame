@@ -98,39 +98,53 @@ function update(content) {
             // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
             reachedCursor = true;
 
-            cursor.innerHTML = cursorContent;
+            for(let index = 0; index < cursorContent.length; index++) {
+                if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
+                    leftOfCursor.innerHTML += "<span>" + "<br>" + cursorContent[index] + "</span>";
+                }
+                else {
+                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
+                }
+            }
 
-            current.ref.appendChild(leftOfCursor);
+            // current.ref.appendChild(leftOfCursor);
+            
+            // current.ref.appendChild(cursor);
 
-            current.ref.appendChild(cursor);
+            //leftOfCursor.appendChild(cursor);
+            // current.ref.appendChild(leftOfCursor);
 
-            i += 13;
+            i += 12 + cursorContent.length;
         }
         else if(brTest == "<br>") {
             // currentContent.innerHTML += "<br>";
 
-            if(reachedCursor) {
-                rightOfCursor.innerHTML += "<br>";
-            }
-            else {
-                leftOfCursor.innerHTML += "<br>";                
-            }
+            // if(reachedCursor) {
+            //     rightOfCursor.innerHTML += "<br>";
+            // }
+            // else {
+            //     leftOfCursor.innerHTML += "<br>";
+            // }
+
+            leftOfCursor.innerHTML += "<br>";
             
             i += 3;
         }
         else {
             // currentContent.innerText += content[i];
 
-            if(reachedCursor) {
-                rightOfCursor.innerHTML += content[i];
-            }
-            else {
-                leftOfCursor.innerHTML += content[i];                
-            }
+            // if(reachedCursor) {
+            //     rightOfCursor.innerHTML += content[i];
+            // }
+            // else {
+            //     leftOfCursor.innerHTML += content[i];                
+            // }
+
+            leftOfCursor.innerHTML += content[i];
         };
     }
 
-    current.ref.appendChild(rightOfCursor);
+    current.ref.appendChild(leftOfCursor);
 }
 
 function clearCursorUpdateContent(content) {
@@ -758,6 +772,36 @@ function horizontalMove(amount) {
         }
     }
     
+    if(!(onChar)) {
+        let onEdgeOfWord = false;
+
+        if(onLeft) {
+            onEdgeOfWord = (pos == lettersLeftIndices[startIndex - 1]) || (pos == lettersLeftIndices[endIndex + 1]);
+        }
+        else {
+            onEdgeOfWord = (pos == lettersRightIndices[startIndex]) || (pos == lettersRightIndices[endIndex]);
+        }
+        
+        if(!(onEdgeOfWord)) {
+            if(amount > 0) {
+                if(onLeft) {
+                    pos = lettersLeftIndices[endIndex] + 1;
+                }
+                else {
+                    pos = lettersRightIndices[endIndex] + 1;
+                }
+            }
+            else {
+                if(onLeft) {
+                    pos = lettersLeftIndices[startIndex] - 1;
+                }
+                else {
+                    pos = lettersRightIndices[startIndex] - 1;
+                }
+            }
+        }
+    }
+    
     displayCursor();
 }
 
@@ -806,18 +850,40 @@ function displayCursor() {
         checkCursorSelected(true);
         
         left = "";
-
+        
+        console.clear();
+        console.log(leftNoSpan);
+        console.log(pos);
+        console.log(onChar);
+        console.log(lettersLeftIndices[startIndex]);
+        console.log(lettersLeftIndices[endIndex]);
         for(let i = 0; i < leftNoSpan.length; i++) {
+
             if((i > 0) && (i % lineLength === 0)) {
                 left += "<br>";
             }
             
-            if(i == pos && onChar) {
-                cursorContent = leftNoSpan.charAt(i);
-                left += "<span>" + leftNoSpan.charAt(i) + "</span>";
+            if(onChar) {
+                if(i == pos) {
+                    cursorContent = leftNoSpan.charAt(i);
+                    left += "<span>" + leftNoSpan.charAt(i) + "</span>";
+                }
+                else {
+                    left += leftNoSpan.charAt(i);
+                }
             }
-            else if(onChar) {
-                left += leftNoSpan.charAt(i);
+            else {
+                // if((i == pos) && (pos >= lettersLeftIndices[startIndex]) && (pos <= lettersLeftIndices[endIndex])) {
+                //     left += "<span>" + cursorContent + "</span>";
+                // }
+                console.log(i);
+                if((i == lettersLeftIndices[startIndex]) && 
+                (pos >= lettersLeftIndices[startIndex]) && (pos <= lettersLeftIndices[endIndex])) {
+                    left += "<span>" + cursorContent + "</span>";
+                }
+                else if((i < lettersLeftIndices[startIndex]) || (i > lettersLeftIndices[endIndex])) {
+                    left += leftNoSpan.charAt(i);
+                }
             }
         }
         
@@ -826,7 +892,7 @@ function displayCursor() {
     }
     // right
     else {
-        checkCursorSelected(true);
+        checkCursorSelected(false);
 
         right = "";
 
@@ -839,8 +905,15 @@ function displayCursor() {
                 cursorContent = rightNoSpan.charAt(i);
                 right += "<span>" + rightNoSpan.charAt(i) + "</span>";
             }
-            else if(onChar) {
-                right += rightNoSpan.charAt(i);
+            else if(i != pos) {
+                if(onChar) {
+                    right += rightNoSpan.charAt(i);
+                }
+                else {
+                    if(!(cursorContent.includes(rightNoSpan.charAt(i)))) {
+                        right += rightNoSpan.charAt(i);
+                    }
+                }
             }
         }
         
@@ -855,24 +928,9 @@ function displayCursor() {
     // console.log(left.length, left);
 }
 
+startIndex = -1;
+endIndex = -1;
 function checkCursorSelected(checkingLeft) {
-    let startIndex = -1;
-    let endIndex = -1;
-
-    console.clear();
-
-    console.log("LETTERS LEFT:")
-    console.log(lettersLeftIndices);
-    console.log("in?", lettersLeftIndices.includes(pos));
-    console.log("----------");
-
-    console.log("LETTERS RIGHT:")
-    console.log(lettersRightIndices);
-    console.log("in?", lettersRightIndices.includes(pos));
-    console.log("----------");
-
-    console.log("CURRENT:");
-    console.log(pos, leftNoSpan[pos]);
 
     let inWord = false;
     if(checkingLeft) {
@@ -882,26 +940,41 @@ function checkCursorSelected(checkingLeft) {
     
             let index = lettersLeftIndices.indexOf(pos);
             
-            do {
+            while(lettersLeftIndices[index - 1] == lettersLeftIndices[index] - 1) {
                 --index;
             }
-            while(lettersLeftIndices[index] == (lettersLeftIndices[index + 1] - 1));
             startIndex = index;
     
-            do {
+            while(lettersLeftIndices[index + 1] == lettersLeftIndices[index] + 1) {
+                cursorContent += leftNoSpan[lettersLeftIndices[index]];
+                
                 ++index;
-    
-                // if(checkingLeft) {
-                //     cursorContent += leftNoSpan[index];
-                // }
-                // else {
-                //     cursorContent += rightNoSpan[index];
-                // }
             }
-            while(lettersLeftIndices[index + 1] == (lettersLeftIndices[index - 1] + 1));
+            // need to do this to get the last letter
+            cursorContent += leftNoSpan[lettersLeftIndices[index]];
             endIndex = index;
+        }
+    }
+    else {
+        if(lettersRightIndices.includes(pos)) {
+            inWord = true;
+            cursorContent = "";
     
-            console.log(cursorContent);
+            let index = lettersRightIndices.indexOf(pos);
+            
+            while(lettersRightIndices[index - 1] == lettersRightIndices[index] - 1) {
+                --index;
+            }
+            startIndex = index;
+    
+            while(lettersRightIndices[index + 1] == lettersRightIndices[index] + 1) {
+                cursorContent += rightNoSpan[lettersRightIndices[index]];
+                
+                ++index;
+            }
+            // need to do this to get the last letter
+            cursorContent += rightNoSpan[lettersRightIndices[index]];
+            endIndex = index;
         }
     }
     
