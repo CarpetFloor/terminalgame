@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let slowPrint = false;
+let animations = false;
 let printIndex = 0;
 /**
  * One iteration of printing content (1 call of this function only prints a single character of the content)
@@ -43,7 +43,7 @@ function print(content) {
 
     ++printIndex;
     if(printIndex < content.length) {
-        if(slowPrint) {
+        if(animations) {
             window.setTimeout(function() {
                 print(content);
             }, printSpeed);
@@ -98,15 +98,28 @@ function update(content) {
             // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
             reachedCursor = true;
 
-            for(let index = 0; index < cursorContent.length; index++) {
-                // if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
-                //     leftOfCursor.innerHTML += "<span>" + "<br>" + cursorContent[index] + "</span>";
-                // }
-                // else {
-                //     leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
-                // }
+            // console.clear();
+            // console.log("PRINTING:");
+            // console.log(content);
 
-                leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
+            for(let index = 0; index < cursorContent.length; index++) {
+                // console.log(index + ": " + cursorContent[index]);   
+                let otherSubstring = content.substring(i + index + 6, i + index + 6 + 4);
+                // console.log("Other Substring: " + otherSubstring);   
+
+                if(otherSubstring == "<br>") {
+                // if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
+                    // console.log("<br>?", (true));
+                    
+                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "<br>" + "</span>";
+                }
+                else {
+                    // console.log("<br>?", (false));
+
+                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
+                }
+
+                // leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
             }
 
             // current.ref.appendChild(leftOfCursor);
@@ -445,7 +458,7 @@ class MainComponent extends Component {
                     
                     // let lastSelectionDoubleCheck = this.content[this.content.length - 1];
 
-                    if(lastSelection != "w" && lastSelection != "b" && gameData.wordCount < gameData.maxWords) {
+                    if(lastSelection != "w" && lastSelection != "b" && gameData.wordCount < gameData.maxWords && i > 1) {
                         // get the current quadrant
                         // top
                         if(i < lineCount * (lineLength / 2)) {
@@ -623,7 +636,7 @@ function setup(component) {
 
             print(components[component].content);
 
-            if(slowPrint) {
+            if(animations) {
                 window.setTimeout(function () {
                     setup(component + 1);
                 }, calcTimeToPrint(components[component].content));
@@ -650,7 +663,7 @@ function setup(component) {
             
             replace(components[getComponentIndex("top")].content);
 
-            if(slowPrint) {
+            if(animations) {
                 window.setTimeout(function () {
                     play();
                 }, calcTimeToPrint(components[getComponentIndex("top")].content));
@@ -854,9 +867,6 @@ function displayCursor() {
         left = "";
         
         console.clear();
-        console.log(leftNoSpan);
-        console.log(pos);
-        console.log(onChar);
 
         for(let i = 0; i < leftNoSpan.length; i++) {
 
@@ -876,7 +886,23 @@ function displayCursor() {
             else {
                 if((i == lettersLeftIndices[startIndex]) && 
                 (pos >= lettersLeftIndices[startIndex]) && (pos <= lettersLeftIndices[endIndex])) {
-                    left += "<span>" + cursorContent + "</span>";
+                    left += "<span>";
+                    
+                    for(let index = 0; index < cursorContent.length; index++) {
+                        if((i + index + 1) % lineLength === 0) {
+                            left += "<br>";
+                        }
+
+                        left += cursorContent[index];
+
+                        console.log(index + ": " + cursorContent[index]);
+                        console.log("should be a newline?", ((i + index) % lineLength === 0));
+                    }
+
+                    left += "</span>";
+
+                    console.log("UPDATED LEFT:");
+                    console.log(left);
                 }
                 else if((i < lettersLeftIndices[startIndex]) || (i > lettersLeftIndices[endIndex])) {
                     left += leftNoSpan.charAt(i);
@@ -983,8 +1009,10 @@ function checkCursorSelected(checkingLeft) {
 }
 
 window.onload = () => {
-    setDifficulty(4);
-    
+    // 3, 4, 5, 7
+    // setDifficulty(4);
+    setDifficulty(5);
+
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
     
@@ -1003,3 +1031,5 @@ window.onload = () => {
         setup(0);
     }, 200);
 };
+
+// console.log("If you are seeing this then I want to say hi!")
