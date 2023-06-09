@@ -63,18 +63,8 @@ function update(content) {
     current.ref.innerHTML = "";
     
     /**
-     * This is not very effecient, because there are multiple points at which similar parsing is used, thus 
-     * creating a lot of redundancy. The only reason why it is being used for this update function is because 
-     * for some reason when just directly setting the innerHTML of current.ref to content (which already has 
-     * HTML tags of <br> and <span>) sometimes there are issues with, to my understanding, bracket sets and 
-     * the text between each bracket not getting displayed. But it is worse, because for some reason all of 
-     * the text on the current line up until the bracket set will get printed, plus all of the text after 
-     * the bracket set; which means that if the bracket sets goes across multiple lines, more text than a 
-     * single line is supposed to contain will somehow get printed on a line, and then the line lengths and 
-     * location of newlines are off. While it would be best to try to optomize how parsing is done, I 
-     * have not noticed any noticeable decrease in performance, even on a lower-end computer, and coupled 
-     * with the fact that the scope of this entire game is rather quite small, I am fine with leaving things 
-     * the way they currently are, and mainly care if it works.
+     * I had so many problems making this and have no idea why this function turned out the way that it did, 
+     * other than the fact that this is how I got everything to work
      */
     
     let leftOfCursor = document.createElement("p");
@@ -82,6 +72,10 @@ function update(content) {
     
     let cursor = document.createElement("span");
     let reachedCursor = false;
+
+    console.clear();
+    
+    let wordOnMultipleLines = false;
 
     for(let i = 0; i < content.length; i++) {
         let spanTest = "";
@@ -93,7 +87,7 @@ function update(content) {
         if(i < content.length - 4) {
             brTest = content.substring(i, i + 4);
         }
-        
+
         if(spanTest == "<span>") {
             // currentContent.innerHTML += ("<span>" + content[i + 6] + "</span>");
             reachedCursor = true;
@@ -102,21 +96,50 @@ function update(content) {
             // console.log("PRINTING:");
             // console.log(content);
 
-            for(let index = 0; index < cursorContent.length; index++) {
+            // cursorContent doesn't have <br>
+            let actualCursorContent = "";
+            let index = -1;
+            // while(content.substring(i + index, i + index + 7) != "</span>") {
+            while(content.substring(i + index + 7, i + index + 7 + 7) != "</span>") {
+                // for some reason if word starts farthest to the left, it detects the <br> to the left of it
+                if((i == -1) && (content.substring(i + index + 7, i + index + 7 + 4) == "<br>")) {
+                    index += 3;
+                }
+                else {
+                    actualCursorContent += content[i + index + 7];
+                }
+
+                ++index;
+            }
+
+            for(let index = 0; index < actualCursorContent.length; index++) {
                 // console.log(index + ": " + cursorContent[index]);   
-                let otherSubstring = content.substring(i + index + 6, i + index + 6 + 4);
-                // console.log("Other Substring: " + otherSubstring);   
+                let otherSubstring = actualCursorContent.substring(index, index + 4);
+                // console.log("Other Substring: " + otherSubstring);
+
+                console.log(index, actualCursorContent[index]);
+                console.log("otherSubstring: ", otherSubstring);
 
                 if(otherSubstring == "<br>") {
                 // if((index > 0) && ((lettersLeftIndices[startIndex + index]) % lineLength === 0) && (index < endIndex)) {
                     // console.log("<br>?", (true));
                     
-                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "<br>" + "</span>";
+                    if(index > 0) {
+                        leftOfCursor.innerHTML += "<span>";
+                        leftOfCursor.innerHTML += "</span>";
+                        leftOfCursor.innerHTML += "<br>";
+
+                        wordOnMultipleLines = true;
+
+                        // console.log("adding <br> from SPAN at " + (i + index));
+                    }
+
+                    index += 3;
                 }
                 else {
                     // console.log("<br>?", (false));
 
-                    leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
+                    leftOfCursor.innerHTML += "<span>" + actualCursorContent[index] + "</span>";
                 }
 
                 // leftOfCursor.innerHTML += "<span>" + cursorContent[index] + "</span>";
@@ -129,7 +152,7 @@ function update(content) {
             //leftOfCursor.appendChild(cursor);
             // current.ref.appendChild(leftOfCursor);
 
-            i += 12 + cursorContent.length;
+            i += 12 + actualCursorContent.length;
         }
         else if(brTest == "<br>") {
             // currentContent.innerHTML += "<br>";
@@ -141,7 +164,19 @@ function update(content) {
             //     leftOfCursor.innerHTML += "<br>";
             // }
 
-            leftOfCursor.innerHTML += "<br>";
+            /**
+             * For some reason, when a newline is added from a word spanning multiple lines, this 
+             * else if statement adds a newline right after the word, so for some reason just 
+             * checking if a word was just printed that spans multiple lines solves the issue
+             */
+            if(!(wordOnMultipleLines)) {
+                leftOfCursor.innerHTML += "<br>";
+            }
+            else {
+                wordOnMultipleLines = false;
+            }
+
+            // console.log("adding <br> from BR at " + (i));
             
             i += 3;
         }
@@ -865,8 +900,6 @@ function displayCursor() {
         checkCursorSelected(true);
         
         left = "";
-        
-        console.clear();
 
         for(let i = 0; i < leftNoSpan.length; i++) {
 
@@ -889,20 +922,14 @@ function displayCursor() {
                     left += "<span>";
                     
                     for(let index = 0; index < cursorContent.length; index++) {
-                        if((i + index + 1) % lineLength === 0) {
+                        if((i + index) % lineLength === 0) {
                             left += "<br>";
                         }
 
                         left += cursorContent[index];
-
-                        console.log(index + ": " + cursorContent[index]);
-                        console.log("should be a newline?", ((i + index) % lineLength === 0));
                     }
 
                     left += "</span>";
-
-                    console.log("UPDATED LEFT:");
-                    console.log(left);
                 }
                 else if((i < lettersLeftIndices[startIndex]) || (i > lettersLeftIndices[endIndex])) {
                     left += leftNoSpan.charAt(i);
@@ -936,7 +963,17 @@ function displayCursor() {
             else {
                 if((i == lettersRightIndices[startIndex]) && 
                 (pos >= lettersRightIndices[startIndex]) && (pos <= lettersRightIndices[endIndex])) {
-                    right += "<span>" + cursorContent + "</span>";
+                    right += "<span>";
+                    
+                    for(let index = 0; index < cursorContent.length; index++) {
+                        if((i + index) % lineLength === 0) {
+                            right += "<br>";
+                        }
+
+                        right += cursorContent[index];
+                    }
+
+                    right += "</span>";
                 }
                 else if((i < lettersRightIndices[startIndex]) || (i > lettersRightIndices[endIndex])) {
                     right += rightNoSpan.charAt(i);
