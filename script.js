@@ -73,7 +73,7 @@ function update(content) {
     let cursor = document.createElement("span");
     let reachedCursor = false;
 
-    console.clear();
+    // console.clear();
     
     let wordOnMultipleLines = false;
 
@@ -476,6 +476,11 @@ class MainComponent extends Component {
                             ++gameData.quadrantsWordCount[quad];
                             
                             // THIS IS WHERE WORDS GET GENERATED AND ADDED TO THE GAME
+                            /**
+                             * To actually get the words, the variable words is used, which is a refernce to 
+                             * the variable words in words.js, which is an array that contains all of the 
+                             * possible words
+                             */
                             do {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
@@ -532,7 +537,7 @@ class MainComponent extends Component {
                         
                         // start generating the bracket sequence by adding the opening bracket from the chosen bracket set
                         wordToPrint = bracketSet.charAt(0);
-                        // bracketsIndices.push(contentPos);
+                        bracketsIndices.push(contentPos);
                         
                         // add all of the random characters in between the brackets
                         for(let j = 0; j < bracketSetLength; j++) {
@@ -543,17 +548,21 @@ class MainComponent extends Component {
                             MainComponent.possibleChars[
                             random(0,
                             MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
+
+                            bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                         }
                         
                         // finish the bracket sequence by adding the closing bracket
                         wordToPrint += bracketSet.charAt(1);
-                        // bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
+                        bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                         
                         lastSelection = selection;
                         
                         // print out the first character of wordToPrint
                         selection = bracketSet.charAt(0);
                         wordI = 1;
+
+                        console.log(bracketsIndices);
                     }
                     
                     else {
