@@ -244,8 +244,8 @@ let gameData = {
     attempts: -1,
     maxWords: -1,
     wordCount: 0,
-    maxBracketSets: -1,
-    bracketSetCount: 0,
+    // maxBracketSets: -1,
+    // bracketSetCount: 0,
     /* This ensures that words get roughly evenely spaced.
     Each section, or quadrant because there are 4, of the game area
     keeps track of how many words it contains. The sections are the
@@ -389,7 +389,7 @@ class LineNumbersComponent extends Component {
 
 let lettersLeftIndices = [];
 let lettersRightIndices = [];
-let bracketsIndices = [];
+// let bracketsIndices = [];
 class MainComponent extends Component {
     /**
      * the last two are for adding a word,
@@ -404,11 +404,11 @@ class MainComponent extends Component {
             '\\', '|', ';', ':',
             "'", '"', ',', '.',
             '`', '~',
-            'w', 'b'
+            'w'/*, 'b'*/
     ];
     
     // the set of brackets to choose from when a bracket set is chosen
-    static possibleBrackets = ["()", "{}", "[]", "<>"];
+    // static possibleBrackets = ["()", "{}", "[]", "<>"];
     
     constructor(name) {
         super(name);
@@ -442,7 +442,7 @@ class MainComponent extends Component {
                     
                     // let lastSelectionDoubleCheck = this.content[this.content.length - 1];
 
-                    if(lastSelection != "w" && lastSelection != "b" && gameData.wordCount < gameData.maxWords && i > 1) {
+                    if(lastSelection != "w" /*&& lastSelection != "b"*/ && gameData.wordCount < gameData.maxWords && i > 1) {
                         // get the current quadrant
                         // top
                         if(i < lineCount * (lineLength / 2)) {
@@ -522,58 +522,58 @@ class MainComponent extends Component {
                 }
                 
                 // brackets
-                else if(selection == "b") {
-                    /* make sure that there are never 2 consecutive words, and make sure that a
-                    word is never in a set of brackets */
-                    if(lastSelection != "w" && lastSelection != "b" && (gameData.bracketSetCount < gameData.maxBracketSets)) {
-                        ++gameData.bracketSetCount;
+                // else if(selection == "b") {
+                //     /* make sure that there are never 2 consecutive words, and make sure that a
+                //     word is never in a set of brackets */
+                //     if(lastSelection != "w" && lastSelection != "b" && (gameData.bracketSetCount < gameData.maxBracketSets)) {
+                //         ++gameData.bracketSetCount;
                         
-                        // first determine the number of characters between the brackets (does not include brackets)
-                        let bracketSetLength = random(3, 7);
+                //         // first determine the number of characters between the brackets (does not include brackets)
+                //         let bracketSetLength = random(3, 7);
                         
-                        // choose which brackets to use
-                        let bracketSet = MainComponent.possibleBrackets[
-                            random(0, MainComponent.possibleBrackets.length - 1)];
+                //         // choose which brackets to use
+                //         let bracketSet = MainComponent.possibleBrackets[
+                //             random(0, MainComponent.possibleBrackets.length - 1)];
                         
-                        // start generating the bracket sequence by adding the opening bracket from the chosen bracket set
-                        wordToPrint = bracketSet.charAt(0);
-                        bracketsIndices.push(contentPos);
+                //         // start generating the bracket sequence by adding the opening bracket from the chosen bracket set
+                //         wordToPrint = bracketSet.charAt(0);
+                //         bracketsIndices.push(contentPos);
                         
-                        // add all of the random characters in between the brackets
-                        for(let j = 0; j < bracketSetLength; j++) {
-                            wordToPrint +=
-                            /* 3 + gameData.wordFrequency because the 3 gets the the last regular possibleChar that is not
-                            a word or bracket, but then have to add gameData.wordFrequency to account for all of the extra
-                            w's that are added into the array*/
-                            MainComponent.possibleChars[
-                            random(0,
-                            MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
+                //         // add all of the random characters in between the brackets
+                //         for(let j = 0; j < bracketSetLength; j++) {
+                //             wordToPrint +=
+                //             /* 3 + gameData.wordFrequency because the 3 gets the the last regular possibleChar that is not
+                //             a word or bracket, but then have to add gameData.wordFrequency to account for all of the extra
+                //             w's that are added into the array*/
+                //             MainComponent.possibleChars[
+                //             random(0,
+                //             MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
 
-                            bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
-                        }
+                //             bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
+                //         }
                         
-                        // finish the bracket sequence by adding the closing bracket
-                        wordToPrint += bracketSet.charAt(1);
-                        bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
+                //         // finish the bracket sequence by adding the closing bracket
+                //         wordToPrint += bracketSet.charAt(1);
+                //         bracketsIndices.push(bracketsIndices[bracketsIndices.length - 1] + 1);
                         
-                        lastSelection = selection;
+                //         lastSelection = selection;
                         
-                        // print out the first character of wordToPrint
-                        selection = bracketSet.charAt(0);
-                        wordI = 1;
+                //         // print out the first character of wordToPrint
+                //         selection = bracketSet.charAt(0);
+                //         wordI = 1;
 
-                        console.log(bracketsIndices);
-                    }
+                //         console.log(bracketsIndices);
+                //     }
                     
-                    else {
-                        /* 3 + gameData.wordFrequency because the 3 gets the the last regular possibleChar that is not
-                        a word or bracket, but then have to add gameData.wordFrequency to account for all of the extra
-                        w's that are added into the array*/
-                        selection = MainComponent.possibleChars[
-                        random(0,
-                        MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
-                    }
-                }
+                //     else {
+                //         /* 3 + gameData.wordFrequency because the 3 gets the the last regular possibleChar that is not
+                //         a word or bracket, but then have to add gameData.wordFrequency to account for all of the extra
+                //         w's that are added into the array*/
+                //         selection = MainComponent.possibleChars[
+                //         random(0,
+                //         MainComponent.possibleChars.length - (3 + gameData.wordFrequency))];
+                //     }
+                // }
                 
                 else {
                     lastSelection = selection;
