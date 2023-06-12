@@ -1204,11 +1204,25 @@ function attemptWord() {
             components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
             
             replace(components[getComponentIndex("extra")].content);
+
+            if(gameData.attempts == 0) {
+                gameover();
+            }
         }
 
     }
+}
 
-    console.log(gameData.attempts);
+function gameover() {
+    console.log("game over!");
+
+    // stop accepting input
+    document.removeEventListener("keydown", keydown);
+
+    // stop cursor from blinking
+    if(blinkCursor) {
+        clearInterval(blinkingCursorInterval);
+    }
 }
 
 window.onload = () => {
