@@ -240,6 +240,12 @@ function calcTimeToPrint(content) {
 // if the number of attempts should be set based off of the difficulty
 let scaleAttempts = false;
 let gameData = {
+    // easy, medium, hard, insane: insane has even harder aspects to it
+    /**
+     * Extra insane difficulties:
+     * -In attempt history, unable to see what the attempt was
+     * -When an incorrect password is attempted it will not become dotted out (meaning that it is still guessable)
+     */
     difficultyOptions: [3, 4, 5, 7],
     difficulty: -1,
     wordLength: -1,
@@ -670,7 +676,7 @@ function setup(component) {
             current.ref.style.height = height + "px";
 
             components[getComponentIndex("top")].content = topCompleteContent;
-            for(let i = 0; i < 3; i++) {
+            for(let i = 0; i < gameData.attempts; i++) {
                 components[getComponentIndex("top")].content += passwordAttemptCharacter;
             };
             
@@ -1096,24 +1102,110 @@ function getSelectedWord() {
     return word;
 }
 
+function getSimilarity(word) {
+    let similarity = 0;
+    let checkedChars = [];
+
+    for(let i = 0; i < word.length; i++) {
+
+        if(!(checkedChars.includes(word.charAt(i)))) {
+            for(let j = 0; j < password.length; j++) {
+
+                if(password.charAt(j) == word.charAt(i)) {
+                    ++similarity;
+                    checkedChars.push(word.charAt(i));
+
+                    break;
+                }
+
+            }
+        }
+
+    }
+
+    return similarity;
+}
+
 let selectedWord = "";
+let extraLineIndicator = "> ";
 function attemptWord() {
     selectedWord = getSelectedWord();
-    
-    if(selectedWord == password) {
-        window.alert("Nice job, that is the correct password!");
-    }
-    else {
-        --gameData.attempts;
 
-        current.ref = components[getComponentIndex("top")].ref;
+    // make sure that the word has not already been attempted
+    if(!(selectedWord.includes("."))) {
 
-        components[getComponentIndex("top")].content = topCompleteContent;
-        for(let i = 0; i < gameData.attempts; i++) {
-            components[getComponentIndex("top")].content += passwordAttemptCharacter;
+        if(selectedWord == password) {
+            window.alert("Nice job, that is the correct password!");
         }
-        
-        replace(components[getComponentIndex("top")].content);
+        else {
+            --gameData.attempts;
+
+            // replace attempt with dots
+
+            if(gameData.difficulty != 7) {
+                let length = selectedWord.length;
+    
+                if(onLeft) {
+                    for(let i = 0; i < leftNoSpan.length - length; i++) {
+                        let substring = leftNoSpan.substring(i, i + length);
+                        
+                        if(substring == selectedWord) {
+    
+                            for(let j = i; j < i + length; j++) {
+                                let left = leftNoSpan.substring(0, j);
+                                let right = leftNoSpan.substring(j + 1, leftNoSpan.length);
+    
+                                leftNoSpan = left + "." + right;
+                            }   
+                        }
+    
+                    }
+                }
+                else {
+                    for(let i = 0; i < rightNoSpan.length - length; i++) {
+                        let substring = rightNoSpan.substring(i, i + length);
+                        
+                        if(substring == selectedWord) {
+    
+                            for(let j = i; j < i + length; j++) {
+                                let left = rightNoSpan.substring(0, j);
+                                let right = rightNoSpan.substring(j + 1, rightNoSpan.length);
+    
+                                rightNoSpan = left + "." + right;
+                            }   
+                        }
+    
+                    }
+                }
+    
+                displayCursor();
+            }
+
+            // update password attempts display
+
+            current.ref = components[getComponentIndex("top")].ref;
+
+            components[getComponentIndex("top")].content = topCompleteContent;
+            for(let i = 0; i < gameData.attempts; i++) {
+                components[getComponentIndex("top")].content += passwordAttemptCharacter;
+            }
+            
+            replace(components[getComponentIndex("top")].content);
+
+            // show attempted password similarity to actual password
+
+            current.ref = components[getComponentIndex("extra")].ref;
+
+            if(gameData.difficulty != 7) {
+                components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
+            }
+            components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
+            components[getComponentIndex("extra")].content += extraLineIndicator + "similarity: " + getSimilarity(selectedWord) + "<br>";
+            components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
+            
+            replace(components[getComponentIndex("extra")].content);
+        }
+
     }
 
     console.log(gameData.attempts);
@@ -1126,7 +1218,7 @@ window.onload = () => {
     bgColor = cssRef.getPropertyValue("--bgColor");
 
     // 3, 4, 5, 7
-    setDifficulty(4);
+    setDifficulty(3);
     console.log("difficulty:", gameData.difficulty);
 
     components.push(new Component('top'));
@@ -1141,7 +1233,7 @@ window.onload = () => {
     components.push(new MainComponent('rightMain'));
     
     components.push(new Component('extra'));
-    components[components.length - 1].content = ">nothing";
+    components[components.length - 1].content = "";
     
     window.setTimeout(function() {
         setup(0);
