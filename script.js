@@ -708,36 +708,93 @@ function formatMainContent() {
 
 const delay = 125;
 let keydownListener;
-
+let blinkingCursorInterval = null;
 function play() {
     formatMainContent();
-
+    
     displayCursor();
+    
+    if(blinkCursor) {
+        blinkingCursorInterval = window.setInterval(cursorBlink, cursorBlinkRate);
+    }
     
     window.setTimeout(function() {
         keydownListener = document.addEventListener("keydown", keydown);
+        
     }, 200);
 }
 
+// these values are taken from CSS and are set under the window.onload function
+let mainColor = null;
+let bgColor = null;
+let blinkCursor = true;
+let cursorOn = true;
+// in ms
+let cursorBlinkRate = 700;
+// Makes the cursor blink
+function cursorBlink() {
+    /**
+     * Invert cursorOn at the start because when cursorOn is initialized for the first time, it is on, and then when this function 
+     * get called for the first time from the interval, it has already been enough time that the cursor should be off
+     */
+    cursorOn = !(cursorOn);
+    
+    let spans = document.querySelectorAll("span");
+    
+    for(let i = 0; i < spans.length; i++) {
+        // show the cursor
+        if(cursorOn) {
+            spans[i].style.color = bgColor;
+            spans[i].style.backgroundColor = mainColor;
+        }
+        else {
+            spans[i].style.color = mainColor;
+            spans[i].style.backgroundColor = bgColor;
+        }
+    }
+
+}
+
+// if the detected key pressed is a key that does something in the game, which is used for altering cursor blinking
+let validInput = false;
 function keydown(e) {
     switch(e.key) {
         case "ArrowLeft":
+            validInput = true;
             horizontalMove(-1);
             break;
         
         case "ArrowRight":
+            validInput = true;
             horizontalMove(1);
             break;
         
         case "ArrowUp":
+            validInput = true;
             verticalMove(-1);
             break;
         
         case "ArrowDown":
+            validInput = true;
             verticalMove(1);
             break;
     }
-    
+
+    if(blinkCursor && validInput) {
+        resetCursorBlink();
+    }
+}
+
+// when a key is pressed that actually does something in the game keep the cursor on
+function resetCursorBlink() {
+    validInput = false;
+
+    clearInterval(blinkingCursorInterval);
+    // have to set to false because cursorBlink() inverts cursorOn right away before doing anything else
+    cursorOn = false;
+    cursorBlink();
+
+    blinkingCursorInterval = window.setInterval(cursorBlink, cursorBlinkRate);
 }
 
 // the position of the user, which is their index of the main game content
@@ -1000,6 +1057,11 @@ function checkCursorSelected(checkingLeft) {
 }
 
 window.onload = () => {
+    // get color values defined in CSS
+    let cssRef = document.styleSheets[0].cssRules[1].style;
+    mainColor = cssRef.getPropertyValue("--mainColor");
+    bgColor = cssRef.getPropertyValue("--bgColor");
+
     // 3, 4, 5, 7
     setDifficulty(4);
 
