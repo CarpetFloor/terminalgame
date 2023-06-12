@@ -389,6 +389,8 @@ class LineNumbersComponent extends Component {
 
 let lettersLeftIndices = [];
 let lettersRightIndices = [];
+let generatedWords = [];
+let password = "not yet set";
 // let bracketsIndices = [];
 class MainComponent extends Component {
     /**
@@ -485,6 +487,9 @@ class MainComponent extends Component {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
                             while (gameData.wordLength > wordToPrint.length);
+
+                            // add generated word to the array of generated words
+                            generatedWords.push(wordToPrint);
 
                             for(let index = 0; index < wordToPrint.length; index++) {
                                 if(this.name == "leftMain") {
@@ -600,6 +605,11 @@ class MainComponent extends Component {
                 this.content += "<br>";
             }
             
+        }
+
+        // pick one of the generated words to be the password
+        if(this.name == "rightMain") {
+            password = generatedWords[random(0, generatedWords.length - 1)];
         }
     }
 }
