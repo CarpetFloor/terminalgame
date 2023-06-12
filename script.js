@@ -507,6 +507,7 @@ class MainComponent extends Component {
                              * the variable words in words.js, which is an array that contains all of the 
                              * possible words
                              */
+                            // REMEMBER THAT LENGTH OF WORD IS SUPPOSED TO BE AT LEAST DIFFICULTY VALUE, NOT WAHT DIFFICULTY VALUE IS
                             do {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
@@ -737,10 +738,13 @@ function formatMainContent() {
 const delay = 125;
 let keydownListener;
 let blinkingCursorInterval = null;
+let debug = false;
 function play() {
     formatMainContent();
     
-    console.log(password);
+    if(debug) {
+        console.log(password);
+    }
 
     displayCursor();
     
@@ -1243,7 +1247,9 @@ window.onload = () => {
 
     // 3, 4, 5, 7
     setDifficulty(3);
-    console.log("difficulty:", gameData.difficulty);
+    if(debug) {
+        console.log("difficulty:", gameData.difficulty);
+    }
 
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
@@ -1263,5 +1269,3 @@ window.onload = () => {
         setup(0);
     }, 200);
 };
-
-// console.log("If you are seeing this then I want to say hi!")
