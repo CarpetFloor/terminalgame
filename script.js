@@ -27,6 +27,7 @@ let current = {
 
 let animations = false;
 let printIndex = 0;
+// REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
  * One iteration of printing content (1 call of this function only prints a single character of the content)
  * @param content the content to be printe
@@ -236,6 +237,8 @@ function calcTimeToPrint(content) {
     return length * speed;
 }
 
+// if the number of attempts should be set based off of the difficulty
+let scaleAttempts = false;
 let gameData = {
     difficultyOptions: [3, 4, 5, 7],
     difficulty: -1,
@@ -272,9 +275,14 @@ let gameData = {
         
         this.maxWordsPerQuadrant = Math.ceil(this.maxWords / 4);
         
-        this.attempts = (this.difficultyOptions[0] * 2) - this.difficulty;
-        if(this.attempts < 1) {
-            this.attempts = 1;
+        if(scaleAttempts) {
+            this.attempts = (this.difficultyOptions[0] * 2) - this.difficulty;
+            if(this.attempts < 1) {
+                this.attempts = 1;
+            }
+        }
+        else {
+            this.attempts = 3;
         }
     }
 };
@@ -615,6 +623,8 @@ class MainComponent extends Component {
 }
 let gameDivHeight = 0;
 
+let topCompleteContent = "hello, and welcome to the system!<br>please enter your password<br><br>password attempts: ";
+let passwordAttemptCharacter = "█ ";
 function setup(component) {
     if(component <= components.length) {
         if(component < components.length) {
@@ -659,8 +669,10 @@ function setup(component) {
             let height = current.ref.clientHeight;
             current.ref.style.height = height + "px";
 
-            components[getComponentIndex("top")].content =
-                'hello, and welcome to the system!<br>please enter your password<br><br>password attempts: █ █ █';
+            components[getComponentIndex("top")].content = topCompleteContent;
+            for(let i = 0; i < 3; i++) {
+                components[getComponentIndex("top")].content += passwordAttemptCharacter;
+            };
             
             replace(components[getComponentIndex("top")].content);
 
@@ -712,6 +724,8 @@ let blinkingCursorInterval = null;
 function play() {
     formatMainContent();
     
+    console.log(password);
+
     displayCursor();
     
     if(blinkCursor) {
@@ -758,27 +772,38 @@ function cursorBlink() {
 // if the detected key pressed is a key that does something in the game, which is used for altering cursor blinking
 let validInput = false;
 function keydown(e) {
+    // eplanation as to why validInput is set to true here is right above the default case in the switch
+    validInput = true;
+
     switch(e.key) {
         case "ArrowLeft":
-            validInput = true;
             horizontalMove(-1);
             break;
         
         case "ArrowRight":
-            validInput = true;
             horizontalMove(1);
             break;
         
         case "ArrowUp":
-            validInput = true;
             verticalMove(-1);
             break;
         
         case "ArrowDown":
-            validInput = true;
             verticalMove(1);
             break;
-    }
+        
+        case "Enter":
+            if(!(onChar)) {
+                attemptWord();
+            }
+
+            break;
+        
+        // this default case is simply so that all of the above cases don't have to set validInput to true
+        default:
+            validInput = false;
+        
+        }
 
     if(blinkCursor && validInput) {
         resetCursorBlink();
@@ -1056,6 +1081,44 @@ function checkCursorSelected(checkingLeft) {
     onChar = !(inWord);
 }
 
+function getSelectedWord() {
+    let word = "";
+
+    for(let i = startIndex; i < (endIndex + 1); i++) {
+        if(onLeft) {
+            word += leftNoSpan[lettersLeftIndices[i]];
+        }
+        else {
+            word += rightNoSpan[lettersRightIndices[i]];
+        }
+    }
+
+    return word;
+}
+
+let selectedWord = "";
+function attemptWord() {
+    selectedWord = getSelectedWord();
+    
+    if(selectedWord == password) {
+        window.alert("Nice job, that is the correct password!");
+    }
+    else {
+        --gameData.attempts;
+
+        current.ref = components[getComponentIndex("top")].ref;
+
+        components[getComponentIndex("top")].content = topCompleteContent;
+        for(let i = 0; i < gameData.attempts; i++) {
+            components[getComponentIndex("top")].content += passwordAttemptCharacter;
+        }
+        
+        replace(components[getComponentIndex("top")].content);
+    }
+
+    console.log(gameData.attempts);
+}
+
 window.onload = () => {
     // get color values defined in CSS
     let cssRef = document.styleSheets[0].cssRules[1].style;
@@ -1064,6 +1127,7 @@ window.onload = () => {
 
     // 3, 4, 5, 7
     setDifficulty(4);
+    console.log("difficulty:", gameData.difficulty);
 
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
