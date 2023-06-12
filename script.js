@@ -738,7 +738,7 @@ function formatMainContent() {
 const delay = 125;
 let keydownListener;
 let blinkingCursorInterval = null;
-let debug = false;
+let debug = true;
 function play() {
     formatMainContent();
     
@@ -1229,12 +1229,14 @@ function attemptWord() {
 
 function gameover() {
     console.log("game over!");
-
+    
     // stop accepting input
     document.removeEventListener("keydown", keydown);
-
+    
     // stop cursor from blinking
     if(blinkCursor) {
+        // for some reason just clearing the interval doesn't work and have to call resetCursorBlink() first
+        resetCursorBlink();
         clearInterval(blinkingCursorInterval);
     }
 }
