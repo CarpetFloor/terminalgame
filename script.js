@@ -486,8 +486,18 @@ class MainComponent extends Component {
                                 quad = 3;
                             }
                         }
+
+                        let validGenerateIndex = true;
+
+                        // prevent word from generating too far to the right on the bottom line of the left or right side
+                        if(((i % lineCount) == (lineCount - 1) / 2) || ((i % lineCount) == lineCount - 1)) {
+
+                            if ((i % lineCount) < (lineLength - wordToPrint.length)) {
+                                validGenerateIndex = false;
+                            }
+                        }
                         
-                        if(gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) {
+                        if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
                             ++gameData.wordCount;
                             ++gameData.quadrantsWordCount[quad];
                             
