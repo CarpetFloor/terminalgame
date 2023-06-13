@@ -1,8 +1,4 @@
--Fix words generating at the bottom/ end of the left side and not continuing over to the right side (probably just 
-    don't allow generating words there)
 -Make sure there are not multiple of the same word
--Fix when word spans multiple lines and entering word from the top line the end of the word has a newline
--Fix when word spans multiple lines and entering word from the bottome line the top line moves down to the bottom line
 
 -Main menu
 -Tutorial

@@ -511,7 +511,7 @@ class MainComponent extends Component {
                             do {
                                 wordToPrint = words[random(0, words.length - 1)];
                             }
-                            while (gameData.wordLength > wordToPrint.length);
+                            while ((gameData.wordLength > wordToPrint.length) && (generatedWords.includes(wordToPrint)));
 
                             // add generated word to the array of generated words
                             generatedWords.push(wordToPrint);
