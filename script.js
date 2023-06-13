@@ -1239,6 +1239,30 @@ function gameover() {
         resetCursorBlink();
         clearInterval(blinkingCursorInterval);
     }
+
+    // update stuff on the right side
+    current.ref = components[getComponentIndex("extra")].ref;
+
+    if(gameData.difficulty != 7) {
+        components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
+    }
+    components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
+    components[getComponentIndex("extra")].content += extraLineIndicator + "you have run out of attempts";
+    
+    replace(components[getComponentIndex("extra")].content);
+
+    // show game over message
+    window.setTimeout(function() {
+        let message = "g<br>a<br>m<br>e<br><br>o<br>v<br>e<br>r";
+        
+        current.ref = components[getComponentIndex("leftMain")].ref;
+        current.ref.innerHTML = "";
+        print(message);
+        
+        current.ref = components[getComponentIndex("rightMain")].ref;
+        current.ref.innerHTML = "";
+        print(message);
+    }, 300);
 }
 
 window.onload = () => {
