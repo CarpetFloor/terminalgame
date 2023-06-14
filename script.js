@@ -444,12 +444,8 @@ class MainComponent extends Component {
         // index for the current character of wordToPrint to print
         let wordI = 0;
         
-        console.log("");
-        console.log(this.name);
-        console.log(lineCount);
-        console.log("");
-        
         for(let i = 1; i <= lineCount * lineLength; i++) {
+            // console.log(i);
             if(wordToPrint.length === 0) {
                 selection = MainComponent.possibleChars[
                 random(0, MainComponent.possibleChars.length)];
@@ -495,17 +491,11 @@ class MainComponent extends Component {
 
                         // prevent word from generating too far to the right on the bottom line of the left or right side
                         let margin = 2;
-                        // if(
-                        //     (((lineCount) / 2) - (i % lineCount) < margin) || 
-                        //     (((lineCount) / 1) - (i % lineCount) < margin)
-                        //     ) {
-                                
-                        //         if ((i % lineCount) < (lineLength - wordToPrint.length)) {
-                        //             validGenerateIndex = false;
-                        //         }
-                        //     }
+                        if(Math.floor(i / lineLength) == (lineCount - 1)) {
+                            validGenerateIndex = false;
+                        }
                             
-                            if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
+                        if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
                                 ++gameData.wordCount;
                                 ++gameData.quadrantsWordCount[quad];
                                 
@@ -520,8 +510,6 @@ class MainComponent extends Component {
                                wordToPrint = words[random(0, words.length - 1)];
                             }
                             while ((gameData.wordLength > wordToPrint.length) && (generatedWords.includes(wordToPrint)));
-                            
-                            console.log(i % lineCount, wordToPrint);
                             
                             // add generated word to the array of generated words
                             generatedWords.push(wordToPrint);
