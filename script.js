@@ -1149,7 +1149,9 @@ function attemptWord() {
     if(!(selectedWord.includes("."))) {
 
         if(selectedWord == password) {
-            window.alert("Nice job, that is the correct password!");
+            window.setInterval(function() {
+                location.reload();
+            }, 5000);
         }
         else {
             --gameData.attempts;
@@ -1247,10 +1249,14 @@ function gameover() {
         components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
     }
     components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
-    components[getComponentIndex("extra")].content += extraLineIndicator + "you have run out of attempts";
-    components[getComponentIndex("extra")].content += extraLineIndicator + "the actual password was:" + password;
+    components[getComponentIndex("extra")].content += extraLineIndicator + "you have run out of attempts" + "<br>";
+    components[getComponentIndex("extra")].content += extraLineIndicator + "the actual password was: " + password;
 
     replace(components[getComponentIndex("extra")].content);
+
+    window.setInterval(function() {
+        location.reload();
+    }, 5000);
 
     // show game over message
     // window.setTimeout(function() {
