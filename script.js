@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = true;
+let animations = false;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -431,7 +431,7 @@ class MainComponent extends Component {
 
         this.generate();
     }
-
+    
     // POSSIBLY split this into multiple smaller functions
     generate() {
         let contentPos = 0;
@@ -444,6 +444,10 @@ class MainComponent extends Component {
         // index for the current character of wordToPrint to print
         let wordI = 0;
         
+        console.log("");
+        console.log(this.name);
+        console.log(lineCount);
+        console.log("");
         
         for(let i = 1; i <= lineCount * lineLength; i++) {
             if(wordToPrint.length === 0) {
@@ -458,7 +462,7 @@ class MainComponent extends Component {
                     
                     // let lastSelectionDoubleCheck = this.content[this.content.length - 1];
 
-                    if(lastSelection != "w" /*&& lastSelection != "b"*/ && gameData.wordCount < gameData.maxWords && i > 1) {
+                    if(lastSelection != "w" && lastSelection != "b" && gameData.wordCount < gameData.maxWords && i > 1) {
                         // get the current quadrant
                         // top
                         if(i < lineCount * (lineLength / 2)) {
@@ -490,29 +494,35 @@ class MainComponent extends Component {
                         let validGenerateIndex = true;
 
                         // prevent word from generating too far to the right on the bottom line of the left or right side
-                        if(((i % lineCount) == (lineCount - 1) / 2) || ((i % lineCount) == lineCount - 1)) {
-
-                            if ((i % lineCount) < (lineLength - wordToPrint.length)) {
-                                validGenerateIndex = false;
-                            }
-                        }
-                        
-                        if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
-                            ++gameData.wordCount;
-                            ++gameData.quadrantsWordCount[quad];
+                        let margin = 2;
+                        // if(
+                        //     (((lineCount) / 2) - (i % lineCount) < margin) || 
+                        //     (((lineCount) / 1) - (i % lineCount) < margin)
+                        //     ) {
+                                
+                        //         if ((i % lineCount) < (lineLength - wordToPrint.length)) {
+                        //             validGenerateIndex = false;
+                        //         }
+                        //     }
                             
+                            if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
+                                ++gameData.wordCount;
+                                ++gameData.quadrantsWordCount[quad];
+                                
                             // THIS IS WHERE WORDS GET GENERATED AND ADDED TO THE GAME
                             /**
                              * To actually get the words, the variable words is used, which is a refernce to 
                              * the variable words in words.js, which is an array that contains all of the 
                              * possible words
-                             */
-                            // REMEMBER THAT LENGTH OF WORD IS SUPPOSED TO BE AT LEAST DIFFICULTY VALUE, NOT WAHT DIFFICULTY VALUE IS
-                            do {
-                                wordToPrint = words[random(0, words.length - 1)];
+                            */
+                           // REMEMBER THAT LENGTH OF WORD IS SUPPOSED TO BE AT LEAST DIFFICULTY VALUE, NOT WAHT DIFFICULTY VALUE IS
+                           do {
+                               wordToPrint = words[random(0, words.length - 1)];
                             }
                             while ((gameData.wordLength > wordToPrint.length) && (generatedWords.includes(wordToPrint)));
-
+                            
+                            console.log(i % lineCount, wordToPrint);
+                            
                             // add generated word to the array of generated words
                             generatedWords.push(wordToPrint);
 
@@ -811,7 +821,8 @@ function keydown(e) {
         case "ArrowDown":
             verticalMove(1);
             break;
-        
+
+        case " ":
         case "Enter":
             if(!(onChar)) {
                 attemptWord();
@@ -1147,6 +1158,13 @@ function attemptWord() {
 
     // make sure that the word has not already been attempted
     if(!(selectedWord.includes("."))) {
+        document.removeEventListener("keydown", keydown);
+        
+        if(blinkCursor) {
+            resetCursorBlink();
+            // for some reason just clearing the interval doesn't work and have to call resetCursorBlink() first
+            clearInterval(blinkingCursorInterval);
+        }
 
         if(selectedWord == password) {
             window.setInterval(function() {
@@ -1203,58 +1221,50 @@ function attemptWord() {
                 displayCursor();
             }
 
-            window.setTimeout(function() {
-                // update password attempts display
+            // update password attempts display
 
-                current.ref = components[getComponentIndex("top")].ref;
+            current.ref = components[getComponentIndex("top")].ref;
 
-                components[getComponentIndex("top")].content = topCompleteContent;
-                for(let i = 0; i < gameData.attempts; i++) {
-                    components[getComponentIndex("top")].content += passwordAttemptCharacter;
-                }
-                
-                replace(components[getComponentIndex("top")].content);
-
-                window.setInterval(function() {
-                    // show attempted password similarity to actual password
-
-                    current.ref = components[getComponentIndex("extra")].ref;
-
-                    if(gameData.difficulty != 7) {
-                        components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
-                    }
-                    components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
-                    components[getComponentIndex("extra")].content += extraLineIndicator + "similarity: " + getSimilarity(selectedWord) + "<br>";
-                    components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
-                    
-                    replace(components[getComponentIndex("extra")].content);
-
-                    // window.setInterval(function() {
-                    //     if(gameData.attempts == 0) {
-                    //         gameover();
-                    //     }
-                    // }, calcTimeToPrint(components[getComponentIndex("extra")].content));
-
-                }, calcTimeToPrint(components[getComponentIndex("top")].content));
+            components[getComponentIndex("top")].content = topCompleteContent;
+            for(let i = 0; i < gameData.attempts; i++) {
+                components[getComponentIndex("top")].content += passwordAttemptCharacter;
+            }
             
-            }, nextWait);
+            replace(components[getComponentIndex("top")].content);
+
+            window.setTimeout(function() {
+                // show attempted password similarity to actual password
+
+                current.ref = components[getComponentIndex("extra")].ref;
+
+                if(gameData.difficulty != 7) {
+                    components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
+                }
+                components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
+                components[getComponentIndex("extra")].content += extraLineIndicator + "similarity: " + getSimilarity(selectedWord) + "<br>";
+                components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
+                
+                replace(components[getComponentIndex("extra")].content);
+
+                window.setTimeout(function() {
+                    if(gameData.attempts == 0) {
+                        gameover();
+                    }
+                    else {
+                        document.addEventListener("keydown", keydown);
+
+                        resetCursorBlink();
+                    }
+                }, calcTimeToPrint(components[getComponentIndex("extra")].content));
+
+            }, calcTimeToPrint(components[getComponentIndex("top")].content));
+
+        }
 
     }
 }
 
 function gameover() {
-    console.log("game over!");
-    
-    // stop accepting input
-    document.removeEventListener("keydown", keydown);
-    
-    // stop cursor from blinking
-    if(blinkCursor) {
-        // for some reason just clearing the interval doesn't work and have to call resetCursorBlink() first
-        resetCursorBlink();
-        clearInterval(blinkingCursorInterval);
-    }
-
     // update stuff on the right side
     current.ref = components[getComponentIndex("extra")].ref;
 
@@ -1266,10 +1276,6 @@ function gameover() {
     components[getComponentIndex("extra")].content += extraLineIndicator + "the actual password was: " + password;
 
     replace(components[getComponentIndex("extra")].content);
-
-    window.setInterval(function() {
-        location.reload();
-    }, 5000);
 
     // show game over message
     // window.setTimeout(function() {
