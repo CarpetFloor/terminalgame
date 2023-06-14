@@ -4,7 +4,8 @@
 }
 
 :root {
-    --mainColor: #00FF99;
+    /* --mainColor: #00FF99; */
+    --mainColor: #3498DB;
     --bgColor: black;
 }
 
