@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = false;
+let animations = true;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -1158,10 +1158,14 @@ function attemptWord() {
 
             // replace attempt with dots
 
+            let nextWait = 0;
+
             if(gameData.difficulty != 7) {
                 let length = selectedWord.length;
-    
+                
                 if(onLeft) {
+                    nextWait = calcTimeToPrint(left);
+
                     for(let i = 0; i < leftNoSpan.length - length; i++) {
                         let substring = leftNoSpan.substring(i, i + length);
                         
@@ -1178,6 +1182,8 @@ function attemptWord() {
                     }
                 }
                 else {
+                    nextWait = calcTimeToPrint(left);
+
                     for(let i = 0; i < rightNoSpan.length - length; i++) {
                         let substring = rightNoSpan.substring(i, i + length);
                         
@@ -1197,34 +1203,41 @@ function attemptWord() {
                 displayCursor();
             }
 
-            // update password attempts display
+            window.setTimeout(function() {
+                // update password attempts display
 
-            current.ref = components[getComponentIndex("top")].ref;
+                current.ref = components[getComponentIndex("top")].ref;
 
-            components[getComponentIndex("top")].content = topCompleteContent;
-            for(let i = 0; i < gameData.attempts; i++) {
-                components[getComponentIndex("top")].content += passwordAttemptCharacter;
-            }
+                components[getComponentIndex("top")].content = topCompleteContent;
+                for(let i = 0; i < gameData.attempts; i++) {
+                    components[getComponentIndex("top")].content += passwordAttemptCharacter;
+                }
+                
+                replace(components[getComponentIndex("top")].content);
+
+                window.setInterval(function() {
+                    // show attempted password similarity to actual password
+
+                    current.ref = components[getComponentIndex("extra")].ref;
+
+                    if(gameData.difficulty != 7) {
+                        components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
+                    }
+                    components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
+                    components[getComponentIndex("extra")].content += extraLineIndicator + "similarity: " + getSimilarity(selectedWord) + "<br>";
+                    components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
+                    
+                    replace(components[getComponentIndex("extra")].content);
+
+                    // window.setInterval(function() {
+                    //     if(gameData.attempts == 0) {
+                    //         gameover();
+                    //     }
+                    // }, calcTimeToPrint(components[getComponentIndex("extra")].content));
+
+                }, calcTimeToPrint(components[getComponentIndex("top")].content));
             
-            replace(components[getComponentIndex("top")].content);
-
-            // show attempted password similarity to actual password
-
-            current.ref = components[getComponentIndex("extra")].ref;
-
-            if(gameData.difficulty != 7) {
-                components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
-            }
-            components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
-            components[getComponentIndex("extra")].content += extraLineIndicator + "similarity: " + getSimilarity(selectedWord) + "<br>";
-            components[getComponentIndex("extra")].content += extraLineIndicator + "<br>";
-            
-            replace(components[getComponentIndex("extra")].content);
-
-            if(gameData.attempts == 0) {
-                gameover();
-            }
-        }
+            }, nextWait);
 
     }
 }
