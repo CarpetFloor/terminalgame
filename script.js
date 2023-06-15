@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = false;
+let animations = true;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -1155,9 +1155,7 @@ function attemptWord() {
         }
 
         if(selectedWord == password) {
-            window.setInterval(function() {
-                location.reload();
-            }, 5000);
+            gamewin();
         }
         else {
             --gameData.attempts;
@@ -1220,6 +1218,8 @@ function attemptWord() {
             
             replace(components[getComponentIndex("top")].content);
 
+            let timeScale = 1;
+
             window.setTimeout(function() {
                 // show attempted password similarity to actual password
 
@@ -1243,40 +1243,71 @@ function attemptWord() {
 
                         resetCursorBlink();
                     }
-                }, calcTimeToPrint(components[getComponentIndex("extra")].content));
+                }, calcTimeToPrint(components[getComponentIndex("extra")].content) * timeScale);
 
-            }, calcTimeToPrint(components[getComponentIndex("top")].content));
+            }, calcTimeToPrint(components[getComponentIndex("top")].content) * timeScale);
 
         }
 
     }
 }
 
+
 function gameover() {
     // update stuff on the right side
     current.ref = components[getComponentIndex("extra")].ref;
-
-    if(gameData.difficulty != 7) {
-        components[getComponentIndex("extra")].content += extraLineIndicator + selectedWord + "<br>";
-    }
-    components[getComponentIndex("extra")].content += extraLineIndicator + "incorrect password" + "<br>";
+    
     components[getComponentIndex("extra")].content += extraLineIndicator + "you have run out of attempts" + "<br>";
     components[getComponentIndex("extra")].content += extraLineIndicator + "the actual password was: " + password;
-
+    
     replace(components[getComponentIndex("extra")].content);
+    
+    nextGameMenu();
+}
 
-    // show game over message
-    // window.setTimeout(function() {
-    //     let message = "g<br>a<br>m<br>e<br><br>o<br>v<br>e<br>r";
+function gamewin() {
+    // update stuff on the right side
+    current.ref = components[getComponentIndex("extra")].ref;
+    
+    components[getComponentIndex("extra")].content += extraLineIndicator + "you have successfully guessed" + "<br>";
+    components[getComponentIndex("extra")].content += extraLineIndicator + "that the password was: " + password;
+    
+    replace(components[getComponentIndex("extra")].content);
+    
+    nextGameMenu();
+}
+
+let timeAfterGame = 3 * 1000;
+
+function nextGameMenu() {
+    // update right side
+    window.setTimeout(function() {
+        // have to set pos to -1 because clearCursor does not print the chracter at pos
+        pos = -1;
+
+        if(onLeft) {
+            current.ref = components[getComponentIndex("leftMain")].ref;
+            clearCursor(left);
+        }
+        else {
+            current.ref = components[getComponentIndex("rightMain")].ref;
+            clearCursor(right);
+        }
+
+        window.setTimeout(function() {
+            // update content off to the side
+            current.ref = components[getComponentIndex("extra")].ref;
+    
+            components[getComponentIndex("extra")].content = "";
+
+            components[getComponentIndex("extra")].content += extraLineIndicator + "start a new game?<br>";
+            components[getComponentIndex("extra")].content += extraLineIndicator + "press y for yes<br>";
+            components[getComponentIndex("extra")].content += extraLineIndicator + "or press n for no<br>";        
         
-    //     current.ref = components[getComponentIndex("leftMain")].ref;
-    //     current.ref.innerHTML             = "";
-    //     print(message);
-        
-    //     current.ref = components[getComponentIndex("rightMain")].ref;
-    //     current.ref.innerHTML = "";
-    //     print(message);
-    // }, 300);
+            replace(components[getComponentIndex("extra")].content);
+        }, timeAfterGame / 2);
+
+    }, timeAfterGame);
 }
 
 window.onload = () => {
