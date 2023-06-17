@@ -905,7 +905,9 @@ function horizontalMove(amount) {
             onEdgeOfWord = (pos == lettersRightIndices[startIndex]) || (pos == lettersRightIndices[endIndex]);
         }
         
+        // only change position more than normal when moving if not on the edge of the word
         if(!(onEdgeOfWord)) {
+            // moving to the right
             if(amount > 0) {
                 if(onLeft) {
                     pos = lettersLeftIndices[endIndex] + 1;
@@ -914,6 +916,7 @@ function horizontalMove(amount) {
                     pos = lettersRightIndices[endIndex] + 1;
                 }
             }
+            // moving to the left
             else {
                 if(onLeft) {
                     pos = lettersLeftIndices[startIndex] - 1;
