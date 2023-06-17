@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = true;
+let animations = false;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -845,24 +845,30 @@ function resetCursorBlink() {
 let pos = 0;
 // if the player is on the left side of the game or not
 let onLeft = true;
-
+let lastPos = -2;
 /**
  * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
  */
 function horizontalMove(amount) {
     // on the left side
     if(onLeft) {
+        console.clear();
         // don't allow moving left if it will move player out of bounds
         if(pos + amount >= 0) {
-            pos += amount;
-            
-            // move from left side to right side
-            if(pos >= lineLength * lineCount)  {
+            // move to right side if on the edge and moving right
+            if((amount == 1) && ((pos % lineLength) + Math.abs(amount) > lineLength - 1)) {
+                console.log("moving right!");
+                let actualPos = pos;
+                
+                pos = -1;
                 clearCursor();
+                pos = actualPos - (lineLength - 1);
                 
                 onLeft = false;
-                
-                pos = 0;
+            }
+            // regular movement
+            else {
+                pos += amount;
             }
         }
     }
@@ -870,15 +876,21 @@ function horizontalMove(amount) {
     else {
         // don't allow moving right if it will move player out of bounds
         if(pos + amount < lineLength * lineCount)  {
-            pos += amount;
-            
-            // move from right side to left side
-            if(pos < 0) {
+            // move to left side if on the edge and moving left
+            console.log(pos % lineLength);
+            if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
+                console.log("moving left!");
+                let actualPos = pos;
+                
+                pos = -1;
                 clearCursor();
+                pos = actualPos + (lineLength - 1);
                 
                 onLeft = true;
-                
-                pos = (lineLength * lineCount) - 1;
+            }
+            // regular movement
+            else {
+                pos += amount;
             }
         }
     }
@@ -911,15 +923,19 @@ function horizontalMove(amount) {
                 }
             }
         }
-    }
+    } 
     
     displayCursor();
+
+    lastPos = pos;
 }
 
 /**
  * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
  */
 function verticalMove(amount) {
+    // reset value to prevent going down and left or right from moving to the other side
+    lastPos = -2;
     let originalPosition = pos;
     pos += lineLength * amount;
 
