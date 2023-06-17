@@ -1,5 +1,3 @@
--Make sure there are not multiple of the same word
-
 -Main menu
 -Tutorial
 -Color themes selection
