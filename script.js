@@ -850,6 +850,9 @@ let lastPos = -2;
  * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
  */
 function horizontalMove(amount) {
+    let goToLeft = false;
+    let goToRight = false;
+
     // on the left side
     if(onLeft) {
         console.clear();
@@ -857,14 +860,7 @@ function horizontalMove(amount) {
         if(pos + amount >= 0) {
             // move to right side if on the edge and moving right
             if((amount == 1) && ((pos % lineLength) + Math.abs(amount) > lineLength - 1)) {
-                console.log("moving right!");
-                let actualPos = pos;
-                
-                pos = -1;
-                clearCursor();
-                pos = actualPos - (lineLength - 1);
-                
-                onLeft = false;
+                goToRight = true;
             }
             // regular movement
             else {
@@ -879,6 +875,7 @@ function horizontalMove(amount) {
             // move to left side if on the edge and moving left
             console.log(pos % lineLength);
             if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
+                goToLeft = true;
                 console.log("moving left!");
                 let actualPos = pos;
                 
@@ -896,6 +893,7 @@ function horizontalMove(amount) {
     }
     
     if(!(onChar)) {
+        console.log(" ");
         let onEdgeOfWord = false;
 
         if(onLeft) {
@@ -907,10 +905,16 @@ function horizontalMove(amount) {
         
         // only change position more than normal when moving if not on the edge of the word
         if(!(onEdgeOfWord)) {
+            let oldPos = pos;
+
             // moving to the right
             if(amount > 0) {
                 if(onLeft) {
                     pos = lettersLeftIndices[endIndex] + 1;
+
+                    if(Math.floor(pos / (lineLength - 1)) > Math.floor(oldPos / (lineLength - 1))) {
+                        goToRight = true;
+                    }
                 }
                 else {
                     pos = lettersRightIndices[endIndex] + 1;
@@ -919,14 +923,41 @@ function horizontalMove(amount) {
             // moving to the left
             else {
                 if(onLeft) {
-                    pos = lettersLeftIndices[startIndex] - 1;
+                    pos = lettersLeftIndices[startIndex] - 1 - (lineLength - 1);
                 }
                 else {
                     pos = lettersRightIndices[startIndex] - 1;
+                    if(Math.floor(pos / (lineLength - 1)) < Math.floor(oldPos / (lineLength - 1))) {
+                        goToLeft = true;
+                    }
                 }
             }
         }
-    } 
+    }
+
+    // actually switch sides if moving on the edge of a side
+    if(goToLeft) {
+        console.log("moving left!");
+        goToLeft = true;
+        let actualPos = pos;
+        
+        pos = -1;
+        clearCursor();
+        // I thought an offset based off of lineLength would have to be used, but apparently it works, and I have no idea why, but it works
+        pos = actualPos;
+        
+        onLeft = true;
+    }
+    else if(goToRight) {
+        console.log("moving right!");
+        let actualPos = pos;
+        
+        pos = -1;
+        clearCursor();
+        pos = actualPos - (lineLength - 1);
+        
+        onLeft = false;
+    }
     
     displayCursor();
 
