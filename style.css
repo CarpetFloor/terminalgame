@@ -16,6 +16,11 @@ body {
     font-size: 15px;
     user-select: none;
     text-transform: uppercase;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: -50px;
+    padding: 50px;
 }
 #mainGameContainer {
     display: flex;
