@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = false;
+let animations = true;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -73,8 +73,6 @@ function update(content) {
     
     let cursor = document.createElement("span");
     let reachedCursor = false;
-
-    // console.clear();
     
     let wordOnMultipleLines = false;
 
@@ -445,7 +443,6 @@ class MainComponent extends Component {
         let wordI = 0;
         
         for(let i = 1; i <= lineCount * lineLength; i++) {
-            // console.log(i);
             if(wordToPrint.length === 0) {
                 selection = MainComponent.possibleChars[
                 random(0, MainComponent.possibleChars.length)];
@@ -860,7 +857,6 @@ let lastLine = -1;
  * also note that this function is called before onChar is updated for the current frame
  */
 function horizontalMove(amount) {
-    console.clear();
     let goToLeft = false;
     let goToRight = false;
 
@@ -892,7 +888,6 @@ function horizontalMove(amount) {
         if(pos + amount < lineLength * lineCount)  {
             // move to left side if on the edge and moving left
             if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
-                console.log("moving left!");
                 let actualPos = pos;
                 
                 pos = -1;
@@ -968,10 +963,6 @@ function horizontalMove(amount) {
                 let lineOfStartOfWord = Math.floor(pos / lineLength);
                 let lineOfEndOfWord = Math.floor((pos + cursorContent.length) / lineLength);
                 let lineOfLastPos = Math.floor(lastPos / lineLength);
-
-                console.log("start", lineOfStartOfWord);
-                console.log("end", lineOfEndOfWord);
-                console.log("last", lineOfLastPos);
 
                 if((lineOfEndOfWord > lineOfStartOfWord) && (lineOfLastPos == lineOfEndOfWord)) {
                     let actualPos = pos;
@@ -1126,8 +1117,8 @@ function displayCursor() {
     }
 }
 
-startIndex = -1;
-endIndex = -1;
+let startIndex = -1;
+let endIndex = -1;
 let movedOnToWord = false;
 function checkCursorSelected(checkingLeft) {
 
@@ -1384,11 +1375,106 @@ function nextGameMenu() {
 
             components[getComponentIndex("extra")].content += extraLineIndicator + "start a new game?<br>";
             components[getComponentIndex("extra")].content += extraLineIndicator + "press y for yes<br>";
-            components[getComponentIndex("extra")].content += extraLineIndicator + "or press n for no<br>";        
+            components[getComponentIndex("extra")].content += extraLineIndicator + "press n for no";
         
             replace(components[getComponentIndex("extra")].content);
+
+            window.setTimeout(function() {
+                document.addEventListener("keydown", nextGameKeyDetection);
+            }, calcTimeToPrint(components[getComponentIndex("extra")].content));
         }, timeAfterGame / 2);
 
+    }, timeAfterGame);
+}
+
+function nextGameKeyDetection(e) {
+    if(e.key == "y") {
+        document.removeEventListener("keydown", nextGameKeyDetection);
+        
+        startNewGame();
+    }
+    if(e.key == "n") {
+        document.removeEventListener("keydown", nextGameKeyDetection);
+
+        current.ref = components[getComponentIndex("extra")].ref;
+
+        components[getComponentIndex("extra")].content = "";
+
+        replace(components[getComponentIndex("extra")].content);
+    }
+}
+
+function startNewGame() {
+    // update content off to the side
+    current.ref = components[getComponentIndex("extra")].ref;
+    components[getComponentIndex("extra")].content = extraLineIndicator + "starting a new game...";
+    replace(components[getComponentIndex("extra")].content);
+    
+    window.setTimeout(function() {
+        // clear all stuff on the screen
+        for(let i = 0; i < components.length; i++) {
+            current.ref = components[i].ref;
+            
+            components[i].content = "";
+    
+            replace(components[i].content);    
+        }
+
+        // reset stuff
+        let actualDifficulty = gameData.difficulty;
+
+        gameData.difficultyOptions = [3, 4, 5, 7];
+        gameData.difficulty = -1;
+        gameData.wordLength = -1;
+        gameData.wordFrequency = 0;
+        gameData.attempts = -1;
+        gameData.maxWords = -1;
+        gameData.wordCount = 0;
+        gameData.quadrantsWordCount = [0, 0, 0, 0];
+        gameData.maxWordsPerQuadrant = -1;
+        
+        printIndex = 0;
+        cursorContent = "";
+        components = [];
+        lettersLeftIndices = [];
+        lettersRightIndices = [];
+        generatedWords = [];
+        password = "not yet set";
+        originalLeft = "";
+        originalRight = "";
+        leftNoSpan = "";
+        rightNoSpan = "";
+        left = "";
+        right = "";
+        validInput = false;
+        pos = 0;
+        onLeft = true;
+        lastPos = -2;
+        lastLine = -1;
+        onChar = true;
+        startIndex = -1;
+        endIndex = -1;
+        selectedWord = "";
+
+        setDifficulty(actualDifficulty);
+
+        components.push(new Component('top'));
+        components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';
+        
+        components.push(new LineNumbersComponent('leftLineNumbers'));
+        
+        components.push(new MainComponent('leftMain'));
+        
+        components.push(new LineNumbersComponent('rightLineNumbers'));
+        
+        components.push(new MainComponent('rightMain'));
+        
+        components.push(new Component('extra'));
+        components[components.length - 1].content = "";
+        
+        window.setTimeout(function() {
+            setup(0);
+        }, 200);
     }, timeAfterGame);
 }
 
