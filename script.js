@@ -739,7 +739,7 @@ function formatMainContent() {
 const delay = 125;
 let keydownListener;
 let blinkingCursorInterval = null;
-let debug = true;
+let debug = false;
 function play() {
     formatMainContent();
     
@@ -768,6 +768,14 @@ let cursorOn = true;
 let cursorBlinkRate = 600;
 // Makes the cursor blink
 function cursorBlink() {
+    // first check if game color has been changed
+    if(changedColor) {
+        changedColor = false;
+
+        let root = document.querySelector(":root");
+        mainColor = root.style.getPropertyValue("--mainColor");
+    }
+
     /**
      * Invert cursorOn at the start because when cursorOn is initialized for the first time, it is on, and then when this function 
      * get called for the first time from the interval, it has already been enough time that the cursor should be off
@@ -793,6 +801,9 @@ function cursorBlink() {
 // if the detected key pressed is a key that does something in the game, which is used for altering cursor blinking
 let validInput = false;
 function keydown(e) {
+    // clear focus to prevent space and enter from opening and closing settings/ tutorial
+    document.activeElement.blur();
+
     // eplanation as to why validInput is set to true here is right above the default case in the switch
     validInput = true;
 
@@ -1405,6 +1416,10 @@ function nextGameKeyDetection(e) {
 }
 
 function startNewGame() {
+    let cssRef = document.styleSheets[0].cssRules[1].style;
+    mainColor = cssRef.getPropertyValue("--mainColor");
+    bgColor = cssRef.getPropertyValue("--bgColor");
+    
     // update content off to the side
     current.ref = components[getComponentIndex("extra")].ref;
     components[getComponentIndex("extra")].content = extraLineIndicator + "starting a new game...";
@@ -1422,6 +1437,9 @@ function startNewGame() {
 
         // reset stuff
         let actualDifficulty = gameData.difficulty;
+        if(queuedDifficulty != -1) {
+            actualDifficulty = queuedDifficulty
+        }
 
         gameData.difficultyOptions = [3, 4, 5, 7];
         gameData.difficulty = -1;
@@ -1477,6 +1495,7 @@ function startNewGame() {
         }, 200);
     }, timeAfterGame);
 }
+
 
 window.onload = () => {
     // get color values defined in CSS

@@ -11,12 +11,152 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>terminalgame</title>
 
+    <link rel="icon" type="image/x-icon" href="Favicon.png">
+
     <link rel='stylesheet' href='style.css'>
     <style>
     </style>
 </head>
 <body>
-    <div id='mainGameContainer'>
+    <div id="menu">
+        <button onclick="openSettings()">Settings</button>
+        <button onclick="openTutorial()">Tutorial</button>
+    </div>
+    
+    <div id="settings" class="popupMenu">
+        <p>(Click settings again to close)</p>
+        <br>
+
+        <p><strong>difficulty</strong></p>
+        <p>(note that the the difficulty option will not be applied until the next game)</p>
+
+        <button class="selectOption" onclick="queueDifficulty(this)">
+            <div style="background-color: var(--mainColor);"></div>
+            Easy
+        </button>
+
+        <button class="selectOption" onclick="queueDifficulty(this)">
+            <div></div>
+            Medium
+        </button>
+
+        <button class="selectOption" onclick="queueDifficulty(this)">
+            <div></div>
+            Hard
+        </button>
+
+        <button class="selectOption" onclick="queueDifficulty(this)">
+            <div></div>
+            Extreme*
+        </button>
+
+        <p>*extreme difficulty adds some extra challenges including:</p>
+        <p>-Unable to see what words were guessed in guess history on the right side</p>
+        <p>-Guessed words will not be dotted out, and can still be guessed again</p>
+
+        <br>
+        <br>
+
+        <p><strong>Color</strong></p>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Red
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Orange
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Yellow
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div style="background-color: var(--mainColor);"></div>
+            Green
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Blue
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Purple
+        </button>
+
+        <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            Pink
+        </button>
+
+        <!-- <button class="selectOption" onclick="setColor(this)">
+            <div></div>
+            White
+        </button> -->
+
+    </div>
+
+    <div id="tutorial" class="popupMenu">
+        <p>(Click tutorial again to close)</p>
+        <br>
+        <p><strong>Controls</strong></p>
+        <p>-<u>Arrow keys</u> to move the cursor</p>
+        <p>-<u>Enter / Space</u> to guess the word that the cursor is currently on.</p>
+        <br>
+        <p><strong>Stuff Explained</strong></p>
+        <p class="body">
+                Your goal is to try to guess which word out of a few randomly generated words is the correct word.
+            The words that you can guess from, and the only area that the cursor can move around in, are the 
+            two vertical sections of text that will, at first glance, appear to be bunch of random characters.
+            There are actual words in those sections of text, however they might be a little difficult to find.
+            It is also worth noting that words can span multiple lines.
+        </p>
+        <p class="body">
+                You only have three total guesses to find the correct password before you lose the game, which 
+            is indicated at the top of the screen. To actually attempt to guess a password, you have to move 
+            the cursor over to the word you want to guess, and when it is highlighted press <u>Enter</u> or 
+            <u>Space</u>. After you make a guess, you will be shown information about your guess to the right of 
+            the second vertical section of text. You will be told what your guess was, whether it was correct or 
+            not, and if it was not correct, the similarity. The similarity number is how many letters are the 
+            same between the word that you guessed and the actual password, <strong>not including duplicates</strong>.
+            Meaning that the words 'guess' and 'password' would have a similarity value of 1. Basically, the 
+            similarity value is a hint to guide you in determining what the actual password is. Also, after 
+            guessing a word, it will become dotted out and unable to be guessed again.
+        </p>
+        <p class="body">
+                Before explaining anything else, it is worth pointing out how you can get from one side of the 
+            game to the other. When the cursor is at the right edge of the left side of the game and you press the 
+            <u>Right Arrow Key</u>, the cursor will jump over to the right side. This also works the opposite way: if the 
+            cursor is at the left edge of the right side of the game and you press the <u>Left Arrow Key</u>, the cursor 
+            will jump over to the left side. Additionally, you can go from the left side to the right side by 
+            pressing the <u>Down Arrow Key</u> when on the very-bottom line on the left side. Like horizontal movement, this 
+            also works the opposite way: if you are the very-top line on the right side and press the <u>Up Arrow Key</u>, 
+            the cursor will jump over to the left side.
+        </p>
+        <p class="body">
+                As far as game difficulty, there are four total difficulties that slightly change the game. The harder 
+            the game is, more words will be generated, and words will be longer too. The first three difficulty options 
+            are the standard easy, medium, and hard, with the default option being easy. The fourth difficulty option is 
+            extreme, and in addition to being harder than hard, also has some additional difficulties explained in the 
+            settings menu where you can select your difficulty. Also, speaking of the settings menu, in addition to being 
+            abnle to select the difficulty, you can also select the game color there.
+        </p>
+        <p class="body">
+                Finally it is worth noting some issues you might experience. If you switch to a different tab or window 
+            while the game is printing text out, everything will break and the game will be unplayable. The only 
+            solution is to refresh the page, but this will reset all of the settings. A solution is in the works, but a 
+            release date is still TBD. One other issue you might run into is if pressing any key does not do anything. 
+            This could possible be caused from the game losing focus, so clicking anywhere in the tab should fix the 
+            issue. Another thing to note is that this game has not been thoroughly tested, and so there might be some bugs.
+        </p>
+    </div>
+    
+    <div id="mainGameContainer">
         <div id='top' class='gameDiv'></div>
         
         <div id='bottomHalf'>
@@ -28,6 +168,7 @@
         </div>
     </div>
 
+    <script src="HTMLmenuHandler.js"></script>
     <script src="words.js"></script>
     <script src='script.js'></script>
 </body>
