@@ -494,6 +494,12 @@ class MainComponent extends Component {
                         if(Math.floor(i / lineLength) == (lineCount - 1)) {
                             validGenerateIndex = false;
                         }
+                        
+                        // don't allow generating words if starting from the n-to-last position of the current line
+                        let lastPosToGenerate = 3;
+                        if((i % lineLength) > (lineLength - lastPosToGenerate)) {
+                            validGenerateIndex = false;
+                        }
                             
                         if((gameData.quadrantsWordCount[quad] < gameData.maxWordsPerQuadrant) && validGenerateIndex) {
                                 ++gameData.wordCount;
@@ -762,7 +768,7 @@ let bgColor = null;
 let blinkCursor = true;
 let cursorOn = true;
 // in ms
-let cursorBlinkRate = 700;
+let cursorBlinkRate = 600;
 // Makes the cursor blink
 function cursorBlink() {
     /**
@@ -846,21 +852,33 @@ let pos = 0;
 // if the player is on the left side of the game or not
 let onLeft = true;
 let lastPos = -2;
+let lastLine = -1;
 /**
  * note that when switching sides, have to clear the cursor on current side first by setting pos to -1 and calling displayCursor()
  */
+/**
+ * also note that this function is called before onChar is updated for the current frame
+ */
 function horizontalMove(amount) {
+    console.clear();
     let goToLeft = false;
     let goToRight = false;
 
+    let line = Math.floor(pos / lineLength);
+
     // on the left side
     if(onLeft) {
-        console.clear();
         // don't allow moving left if it will move player out of bounds
         if(pos + amount >= 0) {
             // move to right side if on the edge and moving right
             if((amount == 1) && ((pos % lineLength) + Math.abs(amount) > lineLength - 1)) {
-                goToRight = true;
+                let actualPos = pos;
+                
+                pos = -1;
+                clearCursor();
+                pos = actualPos - (lineLength - 1);
+                
+                onLeft = false;
             }
             // regular movement
             else {
@@ -873,9 +891,7 @@ function horizontalMove(amount) {
         // don't allow moving right if it will move player out of bounds
         if(pos + amount < lineLength * lineCount)  {
             // move to left side if on the edge and moving left
-            console.log(pos % lineLength);
             if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
-                goToLeft = true;
                 console.log("moving left!");
                 let actualPos = pos;
                 
@@ -891,11 +907,10 @@ function horizontalMove(amount) {
             }
         }
     }
-    
-    if(!(onChar)) {
-        console.log(" ");
-        let onEdgeOfWord = false;
 
+    if(!(onChar)) {
+        let onEdgeOfWord = false;
+        
         if(onLeft) {
             onEdgeOfWord = (pos == lettersLeftIndices[startIndex - 1]) || (pos == lettersLeftIndices[endIndex + 1]);
         }
@@ -903,18 +918,14 @@ function horizontalMove(amount) {
             onEdgeOfWord = (pos == lettersRightIndices[startIndex]) || (pos == lettersRightIndices[endIndex]);
         }
         
-        // only change position more than normal when moving if not on the edge of the word
-        if(!(onEdgeOfWord)) {
-            let oldPos = pos;
+        let oldPos = pos;
 
+        // only change position more than normal when moving if not on the edge of the word
+        if(!(onEdgeOfWord)) {    
             // moving to the right
             if(amount > 0) {
                 if(onLeft) {
                     pos = lettersLeftIndices[endIndex] + 1;
-
-                    if(Math.floor(pos / (lineLength - 1)) > Math.floor(oldPos / (lineLength - 1))) {
-                        goToRight = true;
-                    }
                 }
                 else {
                     pos = lettersRightIndices[endIndex] + 1;
@@ -923,41 +934,59 @@ function horizontalMove(amount) {
             // moving to the left
             else {
                 if(onLeft) {
-                    pos = lettersLeftIndices[startIndex] - 1 - (lineLength - 1);
+                    pos = lettersLeftIndices[startIndex] - 1;
                 }
                 else {
                     pos = lettersRightIndices[startIndex] - 1;
-                    if(Math.floor(pos / (lineLength - 1)) < Math.floor(oldPos / (lineLength - 1))) {
-                        goToLeft = true;
-                    }
+                }
+            }
+        }
+        
+
+        // horizontally move from one side to the other when moving across a
+        if(movedOnToWord) {
+            movedOnToWord = false;
+
+            // go to the right side
+            if(onLeft && (amount > 0)) {
+                let lineOfStartOfWord = Math.floor((pos - (cursorContent.length)) / lineLength);
+                let lineOfEndOfWord = Math.floor(pos / lineLength);
+                let lineOfLastPos = Math.floor(lastPos / lineLength);
+
+                if((lineOfEndOfWord > lineOfStartOfWord) && (lineOfLastPos == lineOfStartOfWord)) {
+                    let actualPos = pos;
+                    pos = -1;
+                    clearCursor();
+                    // wthat the frick is this, why is this so complicated
+                    pos = Math.floor((actualPos - cursorContent.length) / lineLength) * lineLength;
+
+                    onLeft = false;
+                }
+            }
+            // go to the left side
+            else if(!(onLeft) && (amount < 0)) {
+                let lineOfStartOfWord = Math.floor(pos / lineLength);
+                let lineOfEndOfWord = Math.floor((pos + cursorContent.length) / lineLength);
+                let lineOfLastPos = Math.floor(lastPos / lineLength);
+
+                console.log("start", lineOfStartOfWord);
+                console.log("end", lineOfEndOfWord);
+                console.log("last", lineOfLastPos);
+
+                if((lineOfEndOfWord > lineOfStartOfWord) && (lineOfLastPos == lineOfEndOfWord)) {
+                    let actualPos = pos;
+                    pos = -1;
+                    clearCursor();
+                    // wthat the frick is this, why is this so complicated
+                    pos = (lineOfLastPos * lineLength) + lineLength - 1;
+
+                    onLeft = true;
                 }
             }
         }
     }
 
-    // actually switch sides if moving on the edge of a side
-    if(goToLeft) {
-        console.log("moving left!");
-        goToLeft = true;
-        let actualPos = pos;
-        
-        pos = -1;
-        clearCursor();
-        // I thought an offset based off of lineLength would have to be used, but apparently it works, and I have no idea why, but it works
-        pos = actualPos;
-        
-        onLeft = true;
-    }
-    else if(goToRight) {
-        console.log("moving right!");
-        let actualPos = pos;
-        
-        pos = -1;
-        clearCursor();
-        pos = actualPos - (lineLength - 1);
-        
-        onLeft = false;
-    }
+    lastLine = Math.floor(pos / lineLength);
     
     displayCursor();
 
@@ -1099,6 +1128,7 @@ function displayCursor() {
 
 startIndex = -1;
 endIndex = -1;
+let movedOnToWord = false;
 function checkCursorSelected(checkingLeft) {
 
     let inWord = false;
@@ -1148,6 +1178,8 @@ function checkCursorSelected(checkingLeft) {
     }
     
     onChar = !(inWord);
+
+    movedOnToWord = inWord;
 }
 
 function getSelectedWord() {

@@ -1,3 +1,5 @@
+-If word is of length 3 and cursor veritcally moves to center character, then moving left or right will take two movements to move off of the
+
 -Main menu
 -Tutorial
 -Color themes selection
