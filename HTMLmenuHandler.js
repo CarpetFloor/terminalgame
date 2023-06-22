@@ -78,8 +78,8 @@ let colors = {
     "white": "white"
 };
 
-let changedColor = false;
 let colorMain = colors["green"];
+let changedColor = false;
 
 function setColor(element) {
     let cssRef = document.styleSheets[0].cssRules[1].style;
@@ -113,6 +113,6 @@ function setColor(element) {
     let root = document.querySelector(":root");
     root.style.setProperty("--mainColor", color);
 
-    changedColor = color;
+    changedColor = true;
     colorMain = color;
 }
