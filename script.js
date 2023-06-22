@@ -768,14 +768,6 @@ let cursorOn = true;
 let cursorBlinkRate = 600;
 // Makes the cursor blink
 function cursorBlink() {
-    // first check if game color has been changed
-    if(changedColor) {
-        changedColor = false;
-
-        let root = document.querySelector(":root");
-        mainColor = root.style.getPropertyValue("--mainColor");
-    }
-
     /**
      * Invert cursorOn at the start because when cursorOn is initialized for the first time, it is on, and then when this function 
      * get called for the first time from the interval, it has already been enough time that the cursor should be off
@@ -1426,6 +1418,10 @@ function startNewGame() {
     replace(components[getComponentIndex("extra")].content);
     
     window.setTimeout(function() {
+        // get game color
+        let root = document.querySelector(":root");
+        mainColor = root.style.getPropertyValue("--mainColor");
+
         // clear all stuff on the screen
         for(let i = 0; i < components.length; i++) {
             current.ref = components[i].ref;
