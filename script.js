@@ -769,8 +769,7 @@ let cursorBlinkRate = 600;
 // Makes the cursor blink
 function cursorBlink() {
     // get game color
-    let root = document.querySelector(":root");
-    mainColor = root.style.getPropertyValue("--mainColor");
+    mainColor = colorMain;
 
     /**
      * Invert cursorOn at the start because when cursorOn is initialized for the first time, it is on, and then when this function 
