@@ -1,10 +1,13 @@
 let settingsOpen = false;
 
 function openSettings() {
+    hideMobileControls = true;
+
     tutorialOpen = false;
     document.getElementById("tutorial").style.display = "none";
     
     if(settingsOpen) {
+        hideMobileControls = false;
         document.getElementById("settings").style.display = "none";
     }
     else {
@@ -12,6 +15,8 @@ function openSettings() {
     }
 
     settingsOpen = !(settingsOpen);
+    
+    window.setTimeout(toggleMobileControlsFromMenu, 100);
 }
 
 let tutorialOpen = false;
@@ -28,6 +33,8 @@ function openTutorial() {
     }
 
     tutorialOpen = !(tutorialOpen);
+
+    window.setTimeout(toggleMobileControlsFromMenu, 100);
 }
 
 let difficulties = {

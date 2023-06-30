@@ -4,11 +4,10 @@
 -->
 
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-    <meta charset='UTF-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta name="google" content="notranslate">
     <title>terminalgame</title>
 
     <link rel="icon" type="image/x-icon" href="Favicon.png">
@@ -19,8 +18,8 @@
 </head>
 <body>
     <div id="menu">
-        <button onclick="openSettings()">Settings</button>
-        <button onclick="openTutorial()">Tutorial</button>
+        <button onclick="openSettings()" ontouchstart="menuToggleMobileControls()">Settings</button>
+        <button onclick="openTutorial()" ontouchstart="menuToggleMobileControls()">Tutorial</button>
     </div>
     
     <div id="settings" class="popupMenu">
@@ -158,12 +157,37 @@
     <div id="mainGameContainer">
         <div id='top' class='gameDiv'></div>
         
-        <div id='bottomHalf'>
-            <div id='leftLineNumbers' class='gameDiv lineNumbers'></div>
-            <div id='leftMain' class='gameDiv gameMain'></div>
-            <div id='rightLineNumbers' class='gameDiv lineNumbers'></div>
-            <div id='rightMain' class='gameDiv gameMain'></div>
-            <div id='extra' class='gameDiv'></div>
+        <div id="bottomHalf">
+            <div class="subContainer">
+                <div id='leftLineNumbers' class='gameDiv lineNumbers'></div>
+                <div id='leftMain' class='gameDiv gameMain'></div>
+            </div>
+
+            <div class="subContainer">
+                <div id='rightLineNumbers' class='gameDiv lineNumbers'></div>
+                <div id='rightMain' class='gameDiv gameMain'></div>
+                <div id='extra' class='gameDiv'></div>
+            </div>
+        </div>
+
+        <div id="mobileControls">
+            <div>
+                <button class="button textButton yesno" ontouchstart="mobileYes()">y</button>
+                <button class="button textButton yesno" ontouchstart="mobileNo()">n</button>
+            </div>
+
+            <br>
+
+            <button class="button textButton" ontouchstart="mobileEnter()">Enter</button>
+
+            <button class="button" ontouchstart="mobileMoveUp()">/\</button>
+
+            <div>
+                <button class="button" ontouchstart="mobileMoveLeft()"><</button>
+                <button class="button" ontouchstart="mobileMoveDown()">\/</button>
+                <button class="button" ontouchstart="mobileMoveRight()">></button>
+            </div>
+
         </div>
     </div>
 

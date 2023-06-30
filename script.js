@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = true;
+let animations = false;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
@@ -682,12 +682,12 @@ function setup(component) {
             (because when it shrinks all of the content below it are moved up) get its current height and make it
             not fit-content before the second set of content starts to print
             */
-            current.ref = components[getComponentIndex("top")].ref;
-
-            let height = current.ref.clientHeight;
-            current.ref.style.height = height + "px";
-
-            components[getComponentIndex("top")].content = topCompleteContent;
+           current.ref = components[getComponentIndex("top")].ref;
+           
+           let height = current.ref.clientHeight;
+           current.ref.style.height = height + "px";
+           
+           components[getComponentIndex("top")].content = topCompleteContent;
             for(let i = 0; i < gameData.attempts; i++) {
                 components[getComponentIndex("top")].content += passwordAttemptCharacter;
             };
@@ -738,6 +738,10 @@ function formatMainContent() {
 
 const delay = 125;
 let keydownListener;
+// for mobile
+let keyupListener;
+// for mobile
+let keyinterruptListener;
 let blinkingCursorInterval = null;
 let debug = false;
 function play() {
@@ -754,8 +758,22 @@ function play() {
     }
     
     window.setTimeout(function() {
-        keydownListener = document.addEventListener("keydown", keydown);
-        
+        if(!(mobile)) {
+            keydownListener = document.addEventListener("keydown", keydown);
+        }
+        else {
+            let buttonsToShow = document.getElementsByClassName("button");
+            for(let i = 0; i < buttonsToShow.length; i++) {
+                buttonsToShow[i].style.display = "flex";
+            }
+            
+            let buttonsToHide = document.getElementsByClassName("yesno");
+            for(let i = 0; i < buttonsToHide.length; i++) {
+                buttonsToHide[i].style.display = "none";
+            }
+            
+            acceptingInput = true;
+        }
     }, 200);
 }
 
@@ -838,6 +856,144 @@ function keydown(e) {
     }
 }
 
+let acceptingInput = false;
+
+// this probably could have been done better
+
+function mobileMoveLeft() {
+    if(acceptingInput) {
+        
+        horizontalMove(-1);
+
+        if(blinkCursor) {
+            resetCursorBlink();
+        }
+
+    }
+}
+
+function mobileMoveRight() {
+    if(acceptingInput) {
+        
+        horizontalMove(1);
+
+        if(blinkCursor) {
+            resetCursorBlink();
+        }
+
+    }
+}
+
+function mobileMoveUp() {
+    console.log("up pressed", acceptingInput);
+    if(acceptingInput) {
+        
+        verticalMove(-1);
+
+        if(blinkCursor) {
+            resetCursorBlink();
+        }
+
+    }
+}
+
+function mobileMoveDown() {
+    if(acceptingInput) {
+        
+        verticalMove(1);
+
+        if(blinkCursor) {
+            resetCursorBlink();
+        }
+
+    }
+}
+
+function mobileEnter() {
+    if(acceptingInput) {
+
+        if(!(onChar)) {
+            attemptWord();
+        }
+
+    }
+}
+
+function mobileYes() {
+    if(acceptingInput) {
+        acceptingInput = false;
+
+        let buttonsToHide = document.getElementsByClassName("button");
+        for(let i = 0; i < buttonsToHide.length; i++) {
+            buttonsToHide[i].style.display = "none";
+        }
+        
+        buttonsToHide = document.getElementsByClassName("yesno");
+        for(let i = 0; i < buttonsToHide.length; i++) {
+            buttonsToHide[i].style.display = "none";
+        }
+        
+        startNewGame();
+    }
+}
+
+function mobileNo() {
+    if(acceptingInput) {
+        acceptingInput = false;
+
+        buttonsToHide = document.getElementsByClassName("yesno");
+        for(let i = 0; i < buttonsToHide.length; i++) {
+            buttonsToHide[i].style.display = "none";
+        }
+
+        current.ref = components[getComponentIndex("extra")].ref;
+
+        components[getComponentIndex("extra")].content = "";
+
+        replace(components[getComponentIndex("extra")].content);
+    }
+}
+
+function toggleMobileControlsFromMenu() {
+    console.clear();
+    
+    if(settingsOpen || tutorialOpen) {
+        let buttonsToHide = document.getElementsByClassName("button");
+        for(let i = 0; i < buttonsToHide.length; i++) {
+            buttonsToHide[i].style.display = "none";
+        }
+        
+        buttonsToHide = document.getElementsByClassName("yesno");
+        for(let i = 0; i < buttonsToHide.length; i++) {
+            buttonsToHide[i].style.display = "none";
+        }
+    }
+    else if(acceptingInput) {
+        if(!(gameOver)) {
+            let buttonsToShow = document.getElementsByClassName("button");
+            for(let i = 0; i < buttonsToShow.length; i++) {
+                buttonsToShow[i].style.display = "flex";
+            }
+            
+            buttonsToHide = document.getElementsByClassName("yesno");
+            for(let i = 0; i < buttonsToHide.length; i++) {
+                buttonsToHide[i].style.display = "none";
+            }
+        }
+        else {
+            buttonsToHide = document.getElementsByClassName("button");
+            for(let i = 0; i < buttonsToHide.length; i++) {
+                buttonsToHide[i].style.display = "none";
+            }
+
+            let buttonsToShow = document.getElementsByClassName("yesno");
+            for(let i = 0; i < buttonsToShow.length; i++) {
+                buttonsToShow[i].style.display = "flex";
+            }
+        }
+    }
+}
+
 // when a key is pressed that actually does something in the game keep the cursor on
 function resetCursorBlink() {
     validInput = false;
@@ -867,24 +1023,43 @@ function horizontalMove(amount) {
     let goToRight = false;
 
     let line = Math.floor(pos / lineLength);
+    let originalPosition = pos;
 
     // on the left side
     if(onLeft) {
         // don't allow moving left if it will move player out of bounds
         if(pos + amount >= 0) {
             // move to right side if on the edge and moving right
-            if((amount == 1) && ((pos % lineLength) + Math.abs(amount) > lineLength - 1)) {
-                let actualPos = pos;
-                
-                pos = -1;
-                clearCursor();
-                pos = actualPos - (lineLength - 1);
-                
-                onLeft = false;
+            if(!(mobile)) {
+                if((amount == 1) && ((pos % lineLength) + Math.abs(amount) > lineLength - 1)) {
+                    let actualPos = pos;
+                    
+                    pos = -1;
+                    clearCursor();
+                    pos = actualPos - (lineLength - 1);
+                    
+                    onLeft = false;
+                }
+                // regular movement
+                else {
+                    pos += amount;
+                }
             }
             // regular movement
             else {
                 pos += amount;
+
+                // when on mobile go from left to right side when moving to the right and reached the end
+                if(mobile) {
+                    if(pos >= (lineCount * lineLength)) {
+                        clearCursor();
+                        
+                        onLeft = false;
+                        
+                        pos = originalPosition - (lineLength * (lineCount - 1)) - (lineLength - 1);
+                        displayCursor();
+                    }
+                }
             }
         }
     }
@@ -892,19 +1067,37 @@ function horizontalMove(amount) {
     else {
         // don't allow moving right if it will move player out of bounds
         if(pos + amount < lineLength * lineCount)  {
-            // move to left side if on the edge and moving left
-            if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
-                let actualPos = pos;
-                
-                pos = -1;
-                clearCursor();
-                pos = actualPos + (lineLength - 1);
-                
-                onLeft = true;
+            if(!(mobile)) {
+                // move to left side if on the edge and moving left
+                if((amount == -1) && ((pos % lineLength) - Math.abs(amount) < 0)) {
+                    let actualPos = pos;
+                    
+                    pos = -1;
+                    clearCursor();
+                    pos = actualPos + (lineLength - 1);
+                    
+                    onLeft = true;
+                }
+                // regular movement
+                else {
+                    pos += amount;
+                }
             }
             // regular movement
             else {
                 pos += amount;
+
+                // when on mobile go from left to right side when moving to the right and reached the end
+                if(mobile) {
+                    if(pos < 0) {
+                        clearCursor();
+
+                        onLeft = true;
+
+                        pos = originalPosition + (lineLength * (lineCount - 1)) + (lineLength - 1);
+                        displayCursor();
+                    }
+                }
             }
         }
     }
@@ -945,7 +1138,7 @@ function horizontalMove(amount) {
         
 
         // horizontally move from one side to the other when moving across a
-        if(movedOnToWord) {
+        if(!(mobile) && movedOnToWord) {
             movedOnToWord = false;
 
             // go to the right side
@@ -1226,6 +1419,7 @@ function attemptWord() {
     // make sure that the word has not already been attempted
     if(!(selectedWord.includes("."))) {
         document.removeEventListener("keydown", keydown);
+        acceptingInput = false;
         
         if(blinkCursor) {
             resetCursorBlink();
@@ -1319,6 +1513,7 @@ function attemptWord() {
                     }
                     else {
                         document.addEventListener("keydown", keydown);
+                        acceptingInput = true;
 
                         resetCursorBlink();
                     }
@@ -1358,6 +1553,7 @@ function gamewin() {
 
 let timeAfterGame = 3 * 1000;
 
+let gameOver = false;
 function nextGameMenu() {
     // update right side
     window.setTimeout(function() {
@@ -1374,6 +1570,8 @@ function nextGameMenu() {
         }
 
         window.setTimeout(function() {
+            gameOver = true;
+
             // update content off to the side
             current.ref = components[getComponentIndex("extra")].ref;
     
@@ -1387,6 +1585,18 @@ function nextGameMenu() {
 
             window.setTimeout(function() {
                 document.addEventListener("keydown", nextGameKeyDetection);
+                
+                let buttonsToHide = document.getElementsByClassName("button");
+                for(let i = 0; i < buttonsToHide.length; i++) {
+                    buttonsToHide[i].style.display = "none";
+                }
+
+                let buttonsToShow = document.getElementsByClassName("yesno");
+                for(let i = 0; i < buttonsToShow.length; i++) {
+                    buttonsToShow[i].style.display = "inline-block";
+                }
+
+                acceptingInput = true;
             }, calcTimeToPrint(components[getComponentIndex("extra")].content));
         }, timeAfterGame / 2);
 
@@ -1395,6 +1605,8 @@ function nextGameMenu() {
 
 function nextGameKeyDetection(e) {
     if(e.key == "y") {
+        gameOver = false;
+
         document.removeEventListener("keydown", nextGameKeyDetection);
         
         startNewGame();
@@ -1491,18 +1703,18 @@ function startNewGame() {
     }, timeAfterGame);
 }
 
-
+let mobile = false;
 window.onload = () => {
     // get color values defined in CSS
     let cssRef = document.styleSheets[0].cssRules[1].style;
     mainColor = cssRef.getPropertyValue("--mainColor");
     bgColor = cssRef.getPropertyValue("--bgColor");
 
-    // 3, 4, 5, 7
+    let styles = getComputedStyle(document.getElementById("bottomHalf"));
+    let mobileCheck = styles.flexDirection;
+    mobile = (mobileCheck == "column");
+
     setDifficulty(3);
-    if(debug) {
-        console.log("difficulty:", gameData.difficulty);
-    }
 
     components.push(new Component('top'));
     components[0].content = 'please wait . . . initializing system<br>.<br>..<br>...';

@@ -7,6 +7,7 @@
     --mainColor: #00FF99;
     /* --mainColor: #3498DB; */
     --bgColor: black;
+    --mobile: "false";
 }
 
 body {
@@ -22,6 +23,11 @@ body {
     margin: -50px;
     padding: 50px;
 }
+button {
+    font-family: Retro;
+    text-transform: uppercase;
+}
+
 #mainGameContainer {
     display: flex;
     flex-direction: column;
@@ -31,6 +37,11 @@ body {
 #bottomHalf {
     display: flex;
     flex-direction: row;
+}
+#bottomHalf .subContainer {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
 }
 .gameDiv {
     /*outline: solid 2px white;*/
@@ -140,4 +151,103 @@ span {
 }
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--mainColor);
+}
+
+#mobileControls {
+    display: none;
+}
+
+/* resize for mobile */
+@media only screen and (max-width: 768px) {
+    html {
+        overflow: hidden;
+    }
+    
+    body {
+        font-size: 10px;
+        position: fixed;
+        overflow: hidden;
+        margin-left: -60px;
+    }
+
+    #mainGameContainer {
+        overflow: hidden;
+    }
+
+    #menu {
+        padding-top: 15px;
+    }
+    #menu button {
+        font-size: 10px;
+    }
+
+    .popupMenu {
+        max-width: 88vw;
+        margin-left: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 10px;
+    }
+    .popupMenu .body {
+        text-indent: 20px;
+    }
+    .selectOption {
+        font-size: 10px;
+    }
+    .selectOption:hover {
+        border: none;
+        margin: 3px;
+    }
+
+    #top {
+        font-size: 10px;
+        margin: 0;
+        margin-bottom: 5px;
+    }
+
+    #bottomHalf {
+        flex-direction: column;
+    }
+
+    #extra {
+        font-size: 8px;
+        margin: 0;
+        padding: 0;
+        margin-top: -200px;
+        margin-left: -15px;
+    }
+
+    #mobileControls {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 141px;
+        right: 40px;
+        margin-left: auto;
+        bottom: 110px;
+    }
+    #mobileControls div {
+        display: flex;
+        flex-direction: row;
+        margin: 0;
+        justify-content: space-evenly;
+    }   
+    #mobileControls button {
+        display: none;
+        width: 45px;
+        height: 45px;
+        padding: 10px;
+        margin: 1px;
+        text-align: center;
+        border: 2px solid var(--mainColor);
+        color: var(--mainColor);
+        background-color: var(--bgColor);
+    }
+    #mobileControls .textButton {
+        width: fit-content;
+    }
+    #mobileControls .yesno {
+        display: none;
+    }
 }
