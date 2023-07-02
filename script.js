@@ -25,7 +25,7 @@ let current = {
     printIndex: 0,
 };
 
-let animations = false;
+let animations = true;
 let printIndex = 0;
 // REMEMBER TO SET current.ref BEFORE CALLING print()!!!
 /**
