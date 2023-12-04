@@ -1,0 +1,6 @@
+Desription: Cursor moving to wrong position.
+Steps:
+    1. Have word that spans multiple lines on left side.
+    2. Move cursor to the row below the first line word is on, and to the column on the far-right side of the left side.
+    3. Move cursor up onto word, so that even though word is highlighted, actual cursor position is character farthest to the right on first line word is on.
+    4. Move right, and cursor should jump to a weird spot on the right side.
