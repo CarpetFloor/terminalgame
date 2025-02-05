@@ -1393,7 +1393,7 @@ function getSimilarity(word) {
 
     for(let i = 0; i < word.length; i++) {
         if(i < password.length) {
-            if((word.charAt(i)).toString() == (password.charAt(j)).toString()) {
+            if((word.charAt(i)).toString() == (password.charAt(i)).toString()) {
                 ++similarity;
             }
         }
